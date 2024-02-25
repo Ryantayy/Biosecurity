@@ -1,2 +1,2 @@
 # StudioProject639
-Contains documents for the assignments for the paper 639 Studio Project.
+Contains documents for the assignments for the paper COMP639 Studio Project.
