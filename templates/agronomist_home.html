@@ -1,0 +1,41 @@
+{% extends 'agronomist_layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+  <img src="{{ url_for('static', filename='Agriculture2.jpg') }}" class="card-img-top" alt="Agriculture">
+  <div class="card-body">
+    <h1 class="card-title">Welcome to the Agricultural Pest & Weed Guide</h1>
+    <p class="card-text">Explore the depths of agricultural knowledge, from pest management to sustainable farming practices.</p>
+    <hr class="my-4">
+
+    <!-- Introduction to Guide Categories -->
+    <h1 class="lead">Our guide covers four main categories:</h1>
+    
+    <!-- Biology Section -->
+    <div class="mb-4">
+      <h2>Biology</h2>
+      <p>Understand the life-cycle of weeds and pests and discover their habitats.</p>
+    </div>
+
+    <!-- Impact Section -->
+    <div class="mb-4">
+      <h2>Impact</h2>
+      <p>Learn how weeds and pests can affect your crops, pasture, and livestock.</p>
+    </div>
+
+    <!-- Control Section -->
+    <div class="mb-4">
+      <h2>Control</h2>
+      <p>Explore various methods to manage and control the spread of weeds and pests.</p>
+    </div>
+
+    <!-- Identification Section -->
+    <div class="mb-4">
+      <h2>Identification</h2>
+      <p>Use our identification tools to recognize weeds, pests, or their damage.</p>
+    </div>
+  </div>
+
+{% endblock %}

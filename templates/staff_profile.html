@@ -1,0 +1,61 @@
+{% extends 'staff_layout.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>Profile Page</h2>
+<div class="container mt-3">
+    <p>Your account details are below:</p>
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td>{{ account.username }}</td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td>{{ account.password }}</td>
+        </tr>
+        <tr>
+            <td>Full Name:</td>
+            <td>{{ account.first_name }} {{ account.last_name }}</td>
+        </tr>
+        <tr>
+            <td>Agronomist ID:</td>
+            <td>{{ account.agronomist_id}} </td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td>{{ account.email }}</td>
+        </tr>
+        <tr>
+            <td>Role:</td>
+            <td>{{ account.role|title }}</td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td>{{ account.address|title }}</td>
+        </tr>
+        <tr>
+            <td>Phone Number:</td>
+            <td>{{ account.phone_number }}</td>
+        </tr>
+        <tr>
+            <td>Date Joined:</td>
+            <td>{{ account.date_joined }}</td>
+        </tr>
+        <tr>
+            <td>Status:</td>
+            <td>{{ account.status|title }}</td>
+        </tr>
+    </table>
+
+    <!-- Buttons Container -->
+    <div class="d-flex justify-content-end mt-3">
+    <!-- Edit Profile Button -->
+    <a href="{{ url_for('staff.edit_profile') }}" class="btn btn-dark">Edit Profile</a>
+    
+    <!-- Change Password Button -->
+    <a href="{{ url_for('staff.change_password') }}" class="btn btn-dark">Change Password</a>
+    </div>
+</div>
+{% endblock %}

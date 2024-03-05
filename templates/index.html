@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Login</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid vh-100">
+        <div class="row h-100">
+            <!-- Left column with background image -->
+            <div class="col-md-6 p-0" style="background: url('{{ url_for('static', filename='Agriculture.jpeg') }}') no-repeat center center / cover;">
+                <!-- Content for the left column -->
+            </div>
+            
+            <!-- Right column for the sign-in form -->
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+				<div class="w-100">
+					<!-- Card for Login Form -->
+					<div class="card mx-auto" style="width: 22rem;">
+						<div class="card-body">
+							<h3 class="card-title text-center">Login</h3>
+							<div class="d-flex justify-content-around mb-3">
+								<a href="{{ url_for('login') }}" class="btn btn-link">Login</a>
+								<a href="{{ url_for('register') }}" class="btn btn-link active">Register</a>
+							</div>
+							<form action="{{ url_for('login') }}" method="post">
+								<div class="form-group mb-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text"><i class="fas fa-user"></i></span>
+										</div>
+										<input type="text" name="username" class="form-control" placeholder="Username" required>
+									</div>
+								</div>
+								<div class="form-group mb-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text"><i class="fas fa-lock"></i></span>
+										</div>
+										<input type="password" name="password" class="form-control" placeholder="Password" required>
+									</div>
+								</div>
+								<div class="msg mb-3">{{ msg }}</div>
+								<button type="submit" class="btn btn-primary w-100">Login</button>
+							</form>
+						</div>
+					</div>
+				</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
+
+
+<!-- <div class="login">
+			<h1>Login</h1>
+			<div class="links">
+				<a href="{{ url_for('login') }}" class="active">Login</a>
+				<a href="{{ url_for('register') }}">Register</a>
+			</div>
+			<form action="{{ url_for('login') }}" method="post">
+				<label for="username">
+					<i class="fas fa-user"></i>
+				</label>
+				<input type="text" name="username" placeholder="Username" id="username" required>
+				<label for="password">
+					<i class="fas fa-lock"></i>
+				</label>
+				<input type="password" name="password" placeholder="Password" id="password" required>
+				<div class="msg">{{ msg }}</div>
+				<input type="submit" value="Login">
+			</form> 
+		</div>
+	</body>-->

@@ -1,0 +1,34 @@
+{% extends 'agronomist_layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<h2>Pest & Weed Directory</h2>
+<div class="jumbotron bg-light text-center">
+  <!-- Code to display a list of pests/weeds in a table. -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Common Name </th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in pestDirectoryList %}
+            <tr>
+                <td>{{ item.item_type|title }}</td>
+                <td>{{ item.common_name|title }}</td>
+                <td>
+                    <!-- Link to the detailed information page -->
+                    <a href="{{ url_for('agronomist.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                        <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" width="100">
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+{% endblock %}
