@@ -1,0 +1,11 @@
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: url('{{ url_for('static', filename='Agriculture2.jpg') }}') no-repeat center center; background-size: cover;">
+  <div class="text-center bg-light p-5 rounded" style="max-width: 600px; background: rgba(255, 255, 255, 0.8);">
+    <h1 class="mb-4">Welcome to the Agricultural Pest & Weed Guide</h1>
+    <p class="lead mb-4">Explore the depths of agricultural knowledge, from pest management to sustainable farming practices.</p>
+    <a href="#" class="btn btn-primary">Learn More</a>
+  </div>
+</div>
+{% endblock %}

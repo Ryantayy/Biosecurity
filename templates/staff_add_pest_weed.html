@@ -1,0 +1,48 @@
+{% extends 'staff_layout.html' %}
+
+{% block title %}Add Pest/Weed Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Add Pest/Weed Details</h2>
+    <form action="{{ url_for('staff.add_pest_weed') }}" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="itemType">Item Type</label>
+        <select class="form-control" id="itemType" name="item_type">
+          <option value="Pest">Pest</option>
+          <option value="Weed">Weed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="commonName">Common Name</label>
+        <input type="text" class="form-control" id="commonName" name="common_name" required>
+      </div>
+      <div class="form-group">
+        <label for="scientificName">Scientific Name</label>
+        <input type="text" class="form-control" id="scientificName" name="scientific_name" required>
+      </div>
+      <div class="form-group">
+        <label for="keyCharacteristics">Key Characteristics</label>
+        <textarea class="form-control" id="keyCharacteristics" name="key_characteristics" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="biologyDescription">Biology Description</label>
+        <textarea class="form-control" id="biologyDescription" name="biology_description" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="impacts">Impacts</label>
+        <textarea class="form-control" id="impacts" name="impacts" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="control">Control</label>
+        <textarea class="form-control" id="control" name="control" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="primaryImage">Primary Image</label>
+        <input type="file" class="form-control-file" id="primaryImage" name="primary_image">
+      </div>
+      <button type="submit" class="btn btn-primary">Add Details</button>
+      <a href="{{ url_for('staff.view_pest_directory') }}" class="btn btn-secondary">Back to Directory</a>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'staff_layout.html' %}
+
+{% block title %}Agronomist Profiles{% endblock %}
+
+{% block content %}
+<h2>Agronomist Profiles</h2>
+<div class="jumbotron bg-light text-center">
+  <!-- Code to display a list of pests/weeds in a table. -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Agronomist_ID</th>
+                <th>User_ID </th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Date Joined</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agronomist in agronomistList %}
+            <tr>
+                <td>{{ agronomist.agronomist_id|title }}</td>
+                <td>{{ agronomist.user_id|title }}</td>
+                <td>{{ agronomist.first_name|title }}</td>
+                <td>{{ agronomist.last_name|title }}</td>
+                <td>{{ agronomist.address|title }}</td>
+                <td>{{ agronomist.email}}</td>
+                <td>{{ agronomist.phone_number }}</td>
+                <td>{{ agronomist.date_joined }}</td>
+                <td>{{ agronomist.status|title }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

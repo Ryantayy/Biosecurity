@@ -1,0 +1,33 @@
+{% extends 'staff_layout.html' %}
+
+{% block title %}{{ item.common_name|title }} Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>{{ item.common_name|title }}</h2>
+            <p><strong>Scientific Name:</strong> {{ item.scientific_name }}</p>
+            <p><strong>Key Characteristics:</strong> {{ item.key_characteristics }}</p>
+            <p><strong>Biology:</strong> {{ item.biology_description }}</p>
+            <p><strong>Impacts:</strong> {{ item.impacts }}</p>
+            <p><strong>Control:</strong> {{ item.control }}</p>
+        </div>
+        <div class="col-md-4">
+            <!-- Display the primary or additional image here -->
+            {% if item.primary_image %}
+                <img src="{{ url_for('static', filename=item.additional_image) }}" alt="{{ item.common_name }} Image" class="img-fluid rounded">
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-right">
+            <!-- Edit button -->
+            <a href="{{ url_for('staff.update_pest_weed_details', agriculture_id=item.agriculture_id) }}" class="btn btn-primary">Edit</a>
+            <!-- Back button -->
+            <a href="{{ url_for('staff.view_pest_directory') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
