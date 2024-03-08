@@ -78,7 +78,7 @@ def login():
                     return redirect(url_for('agronomist.agronomist_dashboard'))
                 elif session['role'] == 'staff':
                     return redirect(url_for('staff.staff_dashboard'))
-                elif session['role'] == 'administrator':
+                elif session['role'] == 'admin':
                     return redirect(url_for('admin.admin_dashboard'))
             else:
                 #password incorrect
@@ -127,7 +127,6 @@ def register():
         msg = 'Please fill out the form!'
     # Show registration form with message (if any)
     return render_template('register.html', msg=msg)
-
 
 # http://localhost:5000/logout - this will be the logout page
 @app.route('/logout')

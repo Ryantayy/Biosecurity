@@ -86,7 +86,7 @@ def edit_profile():
                             UPDATE staffadmin SET first_name = %s, last_name = %s, email = %s, work_phone_number = %s
                             WHERE staff_id = %s AND user_id = %s""", 
                             (first_name, last_name, email, work_phone_number, staff_id, session['user_id']))
-            flash('Profile successfully updated.')
+            flash('Profile successfully updated.', 'success')
             return redirect(url_for('staff.staff_profile'))
     
         cursor.execute("""
@@ -187,9 +187,9 @@ def update_pest_weed_details(agriculture_id):
                     control = %s
                     WHERE agriculture_id = %s
                 """, (common_name, scientific_name, key_characteristics, biology_description, impacts, control, agriculture_id))
-            flash('Pest/weed details updated successfully.')
+            flash('Pest/weed details updated successfully.', 'success')
         except Exception as e:
-            flash('An error occurred: ' + str(e))
+            flash('An error occurred: ' + str(e), 'danger')
         return redirect(url_for('staff.view_pest_weed_details', agriculture_id=agriculture_id))
     
 @staff_page.route('/add_pest_weed', methods=['GET', 'POST'])
@@ -216,16 +216,28 @@ def add_pest_weed():
                 INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image (image_data))
                 VALUES (%s, %s,  %s,  %s,  %s,  %s,  %s, %s)
             """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image))
-            
-            # Commit the transaction if needed
-            connection.commit()
-            
-            flash('Pest/weed details added successfully.')
+            flash('Pest/weed details added successfully.', 'success')
             # Redirect to the list of guides
             return redirect(url_for('staff.view_pest_directory'))
         except Exception as e:
             flash('An error occurred: ' + str(e))
             return redirect(url_for('staff.add_pest_weed'))
+
+@staff_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
+@role_required('staff')
+def delete_pest_weed(agriculture_id):
+    cursor = getCursor()
+    try:
+        # Delete the pest or weed entry from the database
+        cursor.execute("DELETE FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
+        flash('Pest/weed successfully deleted.', 'success')
+    except Exception as e:
+        # If there's an error, rollback any changes
+        connection.rollback()
+        flash('Error deleting pest/weed: ' + str(e), 'error')
+    
+    # Redirect back to the pest directory page
+    return redirect(url_for('staff.view_pest_directory'))
 
 # http://localhost:5000/logout - this will be the logout page
 @staff_page.route('/logout')

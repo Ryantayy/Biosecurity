@@ -1,4 +1,4 @@
-{% extends 'agronomist_layout.html' %}
+{% extends 'admin_layout.html' %}
 
 {% block title %}{{ item.common_name|title }} Details{% endblock %}
 
@@ -22,10 +22,11 @@
     </div>
     <div class="row">
         <div class="col text-right">
+            <!-- Edit button -->
+            <a href="{{ url_for('admin.update_pest_weed_details', agriculture_id=item.agriculture_id) }}" class="btn btn-primary">Edit</a>
             <!-- Back button -->
-            <a href="{{ url_for('agronomist.view_pest_directory') }}" class="btn btn-secondary">Back</a>
+            <a href="{{ url_for('admin.view_pest_directory') }}" class="btn btn-secondary">Back</a>
         </div>
     </div>
-</div> 
+</div>
 {% endblock %}
-

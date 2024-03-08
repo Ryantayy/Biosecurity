@@ -1,0 +1,63 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<style>
+  /* Override global styles for the body to remove padding and margin */
+  body {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden; /* Prevents scrolling */
+  }
+  
+  /* Adjust the .content class if it's being used to apply global padding/margin */
+  .content {
+      padding-top: 60px; /* Adjust based on your actual navbar height */
+  }
+  
+  /* Full-page background setup */
+  .full-page-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1; /* Ensures the image stays behind the content */
+  }
+
+  /* Semi-transparent overlay styles */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+
+  /* Ensure text content is visible above the overlay */
+  .text-content {
+    position: relative;
+    z-index: 2;
+    color : white;
+  }
+</style>
+
+<div class="full-page-background">
+    <img src="{{ url_for('static', filename='Agriculture2.jpg') }}" alt="Background Image" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+    <div class="overlay"></div>
+    
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="col-12 text-center text-white text-content">
+                <h1 class="font-weight-bold">Welcome to the Agricultural Pest & Weed Guide</h1>
+                <p>Explore the depths of agricultural knowledge, from pest management to sustainable farming practices.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

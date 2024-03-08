@@ -87,7 +87,7 @@ def edit_profile():
                             WHERE staff_id = %s AND user_id = %s""", 
                             (first_name, last_name, email, work_phone_number, staff_id, session['user_id']))
             flash('Profile successfully updated.')
-            return redirect(url_for('staff.staff_profile'))
+            return redirect(url_for('admin_profile'))
     
         cursor.execute("""
                         SELECT u.*, s.*
@@ -96,10 +96,10 @@ def edit_profile():
                         WHERE s.user_id = %s""", (session['user_id'],))
         user_data = cursor.fetchone()
         if user_data:
-            return render_template('staff_edit_profile.html', user_data=user_data)
+            return render_template('admin_edit_profile.html', user_data=user_data)
         else:
             flash('User data not found.')
-            return redirect(url_for('staff.staff_profile'))
+            return redirect(url_for('admin.profile'))
 
 @admin_page.route('/change_password', methods=['GET', 'POST'])
 @role_required('admin')
@@ -118,7 +118,7 @@ def change_password():
 
         if not user_data:
             flash('User not found.', 'error')
-            return redirect(url_for('staff.change_password'))
+            return redirect(url_for('admin.change_password'))
 
         # Check if the old password matches
         if not hashing.check_value(user_data['password'], old_password, salt='abcd') or new_password != confirm_password:
@@ -129,8 +129,8 @@ def change_password():
             cursor.execute("UPDATE user SET password = %s WHERE user_id = %s", (hashed_new_password, session['user_id'],))
             flash('Your password has been updated successfully.', 'success')
 
-        return redirect(url_for('staff.staff_profile'))
-    return render_template('staff_change_password.html')
+        return redirect(url_for('admin_profile'))
+    return render_template('admin_change_password.html')
 
 @admin_page.route('/view_agronomist_profile')
 @role_required('admin')
@@ -139,7 +139,7 @@ def view_agronomist_profile():
     #Fetch  the list of pests/weeds from the database
     cursor.execute("SELECT * FROM agronomist;")
     agronomist_list = cursor.fetchall()
-    return render_template('staff_view_agronomist_profile.html', agronomistList = agronomist_list)
+    return render_template('admin_view_agronomist_profile.html', agronomistList = agronomist_list)
 
 @admin_page.route('/view_pest_directory')
 @role_required('admin')
@@ -148,7 +148,7 @@ def view_pest_directory():
     #Fetch  the list of pests/weeds from the database
     cursor.execute("SELECT * FROM pest_directory;")
     pest_directory_list = cursor.fetchall()
-    return render_template('staff_pest_directory.html', pestDirectoryList = pest_directory_list)
+    return render_template('admin_pest_directory.html', pestDirectoryList = pest_directory_list)
 
 @admin_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('admin')
@@ -157,7 +157,7 @@ def view_pest_weed_details(agriculture_id):
     # Fetch details of a specific pest/weed from the database using the item_id
     cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
     pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
-    return render_template('staff_view_pest_weed_details.html', item=pest_details)
+    return render_template('admin_view_pest_weed_details.html', item=pest_details)
 
 @admin_page.route('/update_pest_weed_details/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('admin')
@@ -166,7 +166,7 @@ def update_pest_weed_details(agriculture_id):
     if request.method == 'GET':
         cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
         pest_details = cursor.fetchone()
-        return render_template('staff_update_pest_weed_details.html', item=pest_details)
+        return render_template('admin_update_pest_weed_details.html', item=pest_details)
     
     elif request.method == 'POST':
         try:
@@ -190,7 +190,7 @@ def update_pest_weed_details(agriculture_id):
             flash('Pest/weed details updated successfully.')
         except Exception as e:
             flash('An error occurred: ' + str(e))
-        return redirect(url_for('staff.view_pest_weed_details', agriculture_id=agriculture_id))
+        return redirect(url_for('admin.view_pest_weed_details', agriculture_id=agriculture_id))
     
 @admin_page.route('/add_pest_weed', methods=['GET', 'POST'])
 @role_required('admin')
@@ -226,6 +226,22 @@ def add_pest_weed():
         except Exception as e:
             flash('An error occurred: ' + str(e))
             return redirect(url_for('admin.add_pest_weed'))
+
+@admin_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['POST'])
+@role_required('admin')
+def delete_pest_weed(agriculture_id):
+    cursor = getCursor()
+    try:
+        # Delete the pest or weed entry from the database
+        cursor.execute("DELETE FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
+        flash('Pest/weed successfully deleted.', 'success')
+    except Exception as e:
+        # If there's an error, rollback any changes
+        connection.rollback()
+        flash('Error deleting pest/weed: ' + str(e), 'error')
+    
+    # Redirect back to the pest directory page
+    return redirect(url_for('admin.view_pest_directory'))
 
 # http://localhost:5000/logout - this will be the logout page
 @admin_page.route('/logout')

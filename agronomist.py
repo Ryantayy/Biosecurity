@@ -87,7 +87,7 @@ def edit_profile():
                             UPDATE agronomist SET first_name = %s, last_name = %s, email = %s, address = %s, phone_number = %s
                             WHERE agronomist_id = %s AND user_id = %s""", 
                             (first_name, last_name, email, address, phone_number, agronomist_id, session['user_id']))
-            flash('Profile successfully updated.')
+            flash('Profile successfully updated.', 'success')
             return redirect(url_for('agronomist.agronomist_profile'))
     
         cursor.execute("""
@@ -97,9 +97,9 @@ def edit_profile():
                         WHERE a.user_id = %s""", (session['user_id'],))
         user_data = cursor.fetchone()
         if user_data:
-            return render_template('edit_profile.html', user_data=user_data)
+            return render_template('agronomist_edit_profile.html', user_data=user_data)
         else:
-            flash('User data not found.')
+            flash('User data not found.', 'error')
             return redirect(url_for('agronomist.agronomist_profile'))
 
 @agronomist_page.route('/change_password', methods=['GET', 'POST'])

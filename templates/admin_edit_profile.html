@@ -1,0 +1,60 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+<h2>Edit Profile</h2>
+
+<form action="{{ url_for('admin.edit_profile') }}" method="POST">
+    <div class="mb-3">
+        <label for="Staff ID" class="form-label">Staff ID:</label>
+        <input type="text" class="form-control" id="staff_id" name="staff_id" value="{{ user_data.staff_id }}" readonly>
+    </div>
+    
+    <div class="mb-3">
+        <label for="first_name" class="form-label">First Name:</label>
+        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_data.first_name }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="last_name" class="form-label">Last Name:</label>
+        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_data.last_name }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="address" class="form-label">Position:</label>
+        <input type="text" class="form-control" id="address" name="address" value="{{ user_data.position|title }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="department" class="form-label">Department:</label>
+        <input type="text" class="form-control" id="department" name="department" value="{{ user_data.department|title }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="work_phone_number" class="form-label">Work Phone Number:</label>
+        <input type="text" class="form-control" id="work_phone_number" name="phone_number" value="{{ user_data.work_phone_number }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="hire_date" class="form-label">Hire Date:</label>
+        <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ user_data.hire_date }}" readonly>
+    </div>
+
+    <div class="mb-3">
+        <label for="status" class="form-label">Status:</label>
+        <input type="text" class="form-control" id="status" name="status" value="{{ user_data.status|title }}" readonly>
+    </div>
+
+    <button type="submit" class="btn btn-dark">Update Profile</button>
+</form>
+
+</div>
+{% endblock %}

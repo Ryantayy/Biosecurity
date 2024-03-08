@@ -1,0 +1,41 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}{{ item.common_name|title }} Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit Pest/Weed Details</h2>
+    <form action="{{ url_for('admin.update_pest_weed_details', agriculture_id = item.agriculture_id) }}" method="POST">
+      <!-- Include other fields as necessary -->
+      <div class="form-group">
+        <label for="commonName">Common Name</label>
+        <input type="text" class="form-control" id="commonName" name="common_name" value="{{ item.common_name }}" required>
+      </div>
+      <div class="form-group">
+        <label for="scientificName">Scientific Name</label>
+        <input type="text" class="form-control" id="scientificName" name="scientific_name" value="{{ item.scientific_name }}" required>
+      </div>
+      <div class="form-group">
+        <label for="keyCharacteristics">Key Characteristics</label>
+        <input type="text" class="form-control" id="keyCharacteristics" name="key_characteristics" value="{{ item.key_characteristics }}" required>
+      </div>
+      <div class="form-group">
+        <label for="biologyDescription">Biology Description</label>
+        <input type="text" class="form-control" id="biologyDescription" name="biology_description" value="{{ item.biology_description }}" required>
+      </div>
+      <div class="form-group">
+        <label for="impacts">Impacts</label>
+        <input type="text" class="form-control" id="impacts" name="impacts" value="{{ item.impacts }}" required>
+      </div>
+      <div class="form-group">
+        <label for="control">Control</label>
+        <input type="text" class="form-control" id="control" name="control" value="{{ item.control }}" required>
+      </div>
+      <!-- Add fields for scientific name, impacts, control, etc. -->
+      <button type="submit" class="btn btn-primary">Update Details</button>
+      <!-- Back button -->
+      <a href="#" onclick="history.back();" class="btn btn-secondary">Back</a>
+    </form>
+  </div>
+{% endblock %}
+
