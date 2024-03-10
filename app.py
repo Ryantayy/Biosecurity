@@ -25,6 +25,9 @@ hashing = Hashing(app)  #create an instance of hashing
 
 # Change this to your secret key (can be anything, it's for extra protection)
 app.secret_key = 'lemontea'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+
 
 app.register_blueprint(agronomist_page, url_prefix="/agronomist")
 app.register_blueprint(staff_page, url_prefix="/staff")
@@ -103,7 +106,14 @@ def register():
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        address = request.form['address']
         email = request.form['email']
+        phone_number = request.form['phone_number']
+        date_joined = datetime.now()
+        status = 'active'
+        
         # Check if account exists using MySQL
         cursor = getCursor()
         cursor.execute('SELECT * FROM user WHERE username = %s', (username,))
@@ -115,14 +125,14 @@ def register():
             msg = 'Invalid email address!'
         elif not re.match(r'[A-Za-z0-9]+', username):
             msg = 'Username must contain only characters and numbers!'
-        elif not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$', password):
-            msg = 'Password must be at least 8 characters long and include letters and numbers!'
-        elif not username or not password or not email:
-            msg = 'Please fill out the form!'
+        elif not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}', password):
+            msg = 'Password must be at least 8 characters long and mix of character types!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             hashed = hashing.hash_value(password, salt='abcd')
             cursor.execute('INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s)', (username, hashed, email, 'agronomist'))
+            user_id = cursor.lastrowid
+            cursor.execute('INSERT INTO agronomist (user_id, first_name, last_name, address, email, phone_number, date_joined, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (user_id, first_name, last_name, address, email, phone_number, date_joined, status))
             connection.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
@@ -130,6 +140,7 @@ def register():
         msg = 'Please fill out the form!'
     # Show registration form with message (if any)
     return render_template('register.html', msg=msg)
+
 
 # http://localhost:5000/logout - this will be the logout page
 @app.route('/logout')

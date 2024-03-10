@@ -3,8 +3,8 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<h2 style="padding-top: 30px;">Profile Page</h2>
-<div class="container mt-3">
+<div class="content">
+    <h2 style="padding-top: 30px;">Profile Page</h2>
     <div class="card">
         <div class="card-body">
             <p>Your account details are below:</p>
@@ -50,16 +50,15 @@
                     <td>{{ account.status|title }}</td>
                 </tr>
             </table>
+            <!-- Buttons Container -->
+            <div class="d-flex justify-content-end mt-3">
+                <!-- Edit Profile Button -->
+                <a href="{{ url_for('admin.edit_profile') }}" class="btn btn-dark">Edit Profile</a>
+                
+                <!-- Change Password Button -->
+                <a href="{{ url_for('admin.change_password') }}" class="btn btn-dark">Change Password</a>
+            </div>
         </div>
-    </div>
-
-    <!-- Buttons Container -->
-    <div class="d-flex justify-content-end mt-3">
-    <!-- Edit Profile Button -->
-    <a href="{{ url_for('admin.edit_profile') }}" class="btn btn-dark">Edit Profile</a>
-    
-    <!-- Change Password Button -->
-    <a href="{{ url_for('admin.change_password') }}" class="btn btn-dark">Change Password</a>
     </div>
 </div>
 {% endblock %}

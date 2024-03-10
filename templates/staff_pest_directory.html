@@ -19,26 +19,26 @@
     }
 </style>
 
-<h2 class="mb-4">Pest & Weed Directory</h2>
-<!-- Tab Navigation -->
-<ul class="nav nav-tabs" id="pestWeedTabs" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link active btn-secondary" id="pest-tab" data-toggle="tab" href="#pests" role="tab" aria-controls="pests" aria-selected="true">Pests</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link btn-secondary" id="weed-tab" data-toggle="tab" href="#weeds" role="tab" aria-controls="weeds" aria-selected="false">Weeds</a>
-    </li>
-</ul>
-
 <!-- Tab Content -->
 <div class="tab-content" id="pestWeedTabsContent">
     <!-- Pests Tab -->
-    <div class="tab-pane fade show active" id="pests" role="tabpanel" aria-labelledby="pest-tab">
-        <div class="container mt-4">
-            <div class="row justify-content-end mb-3">
-                <a href="{{ url_for('staff.add_pest_weed', type='pest') }}" class="btn btn-success">Add New Pest</a>
-            </div>
+    <div class="tab-pane fade show active" id="pests" role="tabpanel" aria-labelledby="pests-tab">
+        <div class="content">
+            <h2 style="padding-top: 30px;">Pest Directory</h2>
             <div class="table-responsive">
+                <!-- Tab Navigation with inline "Add New Weed" button -->
+                <div class="d-flex justify-content-between mb-3">
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs" id="pestTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active btn-secondary" id="pests-tab" data-toggle="tab" href="#pests" role="tab" aria-controls="pests" aria-selected="true">Pests</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-secondary" id="weeds-tab" data-toggle="tab" href="#weeds" role="tab" aria-controls="weeds" aria-selected="false">Weeds</a>
+                        </li>
+                    </ul>
+                    <a href="{{ url_for('staff.add_pest_weed', type='pest') }}" class="btn btn-success">Add New Pest</a>
+                </div>
                 <!-- Table headers -->
                 <table class="table table-hover">
                     <thead class="thead-light">
@@ -54,9 +54,15 @@
                             <td>{{ item.common_name|title }}</td>
                             <td class="image-cell">
                                 <!-- Link to the detailed information page -->
+                                {% if item.primary_image %}
                                 <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
                                     <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
                                 </a>
+                                {% else %}
+                                <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                    <img src="{{ url_for('static', filename='No_Image_Available.jpg') }}" alt="Placeholder Image" class="img-fluid" width="100">
+                                </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -67,12 +73,22 @@
     </div>
 
     <!-- Weeds Tab -->
-    <div class="tab-pane fade" id="weeds" role="tabpanel" aria-labelledby="weed-tab">
-        <div class="container mt-4">
-            <div class="row justify-content-end mb-3">
-                <a href="{{ url_for('staff.add_pest_weed', item_type='weed') }}" class="btn btn-success">Add New Weed</a>
-            </div>
+    <div class="tab-pane fade" id="weeds" role="tabpanel" aria-labelledby="weeds-tab">
+        <div class="content">
+            <h2 style="padding-top: 30px;">Weed Directory</h2>
             <div class="table-responsive">
+                <!-- Tab Navigation with inline "Add New Weed" button -->
+                <div class="d-flex justify-content-between mb-3">
+                    <ul class="nav nav-tabs" id="WeedTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link btn-secondary" id="pests-tab" data-toggle="tab" href="#pests" role="tab" aria-controls="pests" aria-selected="true">Pests</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active btn-secondary" id="weeds-tab" data-toggle="tab" href="#weeds" role="tab" aria-controls="weeds" aria-selected="false">Weeds</a>
+                        </li>
+                    </ul>
+                    <a href="{{ url_for('staff.add_pest_weed', type='weed') }}" class="btn btn-success">Add New Weed</a>
+                </div>
                 <table class="table table-hover">
                     <thead class="thead-light">
                         <tr>
@@ -86,9 +102,15 @@
                             <td>{{ item.common_name|title }}</td>
                             <td class="image-cell">
                                 <!-- Link to the detailed information page -->
+                                {% if item.primary_image %}
                                 <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
                                     <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
                                 </a>
+                                {% else %}
+                                <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                    <img src="{{ url_for('static', filename='No_Image_Available.jpg') }}" alt="Placeholder Image" class="img-fluid" width="100">
+                                </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -104,10 +126,24 @@
 {% block additional_scripts %}
 <script>
     $(document).ready(function() {
-        $('#pestWeedTabs a').on('click', function (e) {
-            e.preventDefault()
-            $(this).tab('show')
-        });
+    $('#pestTabs a').on('click', function(e) {
+        e.preventDefault();
+        
+        // Remove 'active' class from all tabs
+        $('#pestTabs a').removeClass('active');
+        // Add 'active' class to the clicked tab
+        $(this).addClass('active');
+        
+        // Show the correct tab content
+        var selectedTab = $(this).attr('href');
+        $('.tab-pane').removeClass('show active');
+        $(selectedTab).addClass('show active');
+
+        // Update the 'Add New' button's URL and text based on the selected tab
+        var type = $(this).attr('aria-controls');
+        $('.btn-success').attr('href', '{{ url_for('staff.add_pest_weed', type=type) }}').text('Add New ' + type.charAt(0).toUpperCase() + type.slice(1));
     });
+});
+
 </script>
 {% endblock %}

@@ -1,11 +1,11 @@
-{% extends 'staff_layout.html' %}
+{% extends 'admin_layout.html' %}
 
 {% block title %}Add Pest/Weed Details{% endblock %}
 
 {% block content %}
 <div class="container">
     <h2>Add Pest/Weed Details</h2>
-    <form action="{{ url_for('staff.add_pest_weed') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ url_for('admin.add_pest_weed') }}" method="POST" enctype="multipart/form-data">
       <div class="form-group">
         <label for="itemType">Item Type</label>
         <select class="form-control" id="itemType" name="item_type">
@@ -42,7 +42,7 @@
         <input type="file" class="form-control-file" id="primaryImage" name="primary_image">
       </div>
       <button type="submit" class="btn btn-primary">Add Details</button>
-      <a href="{{ url_for('staff.view_pest_directory') }}" class="btn btn-secondary">Back to Directory</a>
+      <a href="{{ url_for('admin.view_pest_directory') }}" class="btn btn-secondary">Back to Directory</a>
     </form>
   </div>
 {% endblock %}

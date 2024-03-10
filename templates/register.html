@@ -30,7 +30,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                                         </div>
-                                        <input type="text" name="username" class="form-control" placeholder="Username" required>
+                                        <input type="text" name="username" class="form-control" placeholder="Username" required pattern="^[a-zA-Z0-9_]{3,}$" title="Username must be at least 3 characters long and only contain letters, numbers, and underscores.">
                                     </div>
                                 </div>
                                 <!-- Password Input -->
@@ -39,7 +39,37 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                         </div>
-                                        <input type="password" name="password" class="form-control" placeholder="Password" required>
+                                        <input type="password" name="password" class="form-control" placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Password must be at least 8 characters long and have a mix of character types." required>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Password must be at least 8 characters long and have a mix of character types.
+                                    </small>
+                                </div>
+                                <!-- First Name Input -->
+                                <div class="form-group mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-address-card"></i></span>
+                                        </div>
+                                        <input type="text" name="first_name" class="form-control" placeholder="First Name" pattern="[A-Za-z ]+" title="First name must contain only letters and spaces." required>
+                                    </div>
+                                </div>
+                                <!-- Last Name Input -->
+                                <div class="form-group mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-address-card"></i></span>
+                                        </div>
+                                        <input type="text" name="last_name" class="form-control" placeholder="Last Name" pattern="[A-Za-z ]+" title="Last name must contain only letters and spaces." required>
+                                    </div>
+                                </div>
+                                <!-- Address -->
+                                <div class="form-group mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-info-circle "></i></span>
+                                        </div>
+                                        <input type="text" name="address" class="form-control" placeholder="Address" required>
                                     </div>
                                 </div>
                                 <!-- Email Input -->
@@ -49,6 +79,15 @@
                                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                         </div>
                                         <input type="email" name="email" class="form-control" placeholder="Email" required>
+                                    </div>
+                                </div>
+                                <!-- Phone No Input -->
+                                <div class="form-group mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                        </div>
+                                        <input type="tel" name="phone_number" class="form-control" placeholder="Phone No" pattern="[\d\s\-\+\(\)]+" title="Phone number must be a valid format." required>
                                     </div>
                                 </div>
                                 <!-- Message Display -->

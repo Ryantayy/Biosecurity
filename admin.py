@@ -14,6 +14,10 @@ from functools import wraps
 from flask import flash
 from decorators import role_required
 from flask import g
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app
+from utils import save_image
 
 admin_page = Blueprint("admin", __name__, static_folder="static", 
                        template_folder="templates")
@@ -29,6 +33,9 @@ def getCursor():
     database=connect.dbname, autocommit=True)
     dbconn = connection.cursor(dictionary=True)
     return dbconn
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
 @admin_page.route('/admin_dashboard')
 @role_required('admin')
@@ -143,7 +150,8 @@ def manage_user_profile():
     agronomist_list = cursor.fetchall()
     cursor.execute("""SELECT * 
                     FROM staffadmin s
-                    LEFT JOIN user u ON s.user_id = u.user_id;""")
+                    LEFT JOIN user u ON s.user_id = u.user_id
+                    WHERE position = 'staff';""")
     staff_list = cursor.fetchall()
     return render_template('admin_manage_user_profile.html', agronomistList = agronomist_list, staffList = staff_list)
 
@@ -305,7 +313,7 @@ def change_user_password(user_id):
         # Ensure the new passwords match
         if new_password != confirm_password:
             flash('New passwords do not match.', 'danger')
-            return redirect(url_for('admin.edit_user', user_id=user_id))
+            return redirect(url_for('admin.change_user_password', user_id=user_id))
 
         # Hash the new password
         hashed_new_password = g.hashing.hash_value(new_password, salt='abcd')
@@ -354,7 +362,6 @@ def view_pest_directory():
     
     return render_template('admin_pest_directory.html', pestList=pest_list, weedList=weed_list)
 
-
 @admin_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('admin')
 def view_pest_weed_details(agriculture_id):
@@ -363,6 +370,45 @@ def view_pest_weed_details(agriculture_id):
     cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
     pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
     return render_template('admin_view_pest_weed_details.html', item=pest_details)
+
+@admin_page.route('/upload_image/<int:agriculture_id>', methods=['POST'])
+@role_required('admin')
+def upload_image(agriculture_id):
+    if 'additional_image' not in request.files:
+        flash('No file part', 'warning')
+        return redirect(request.referrer)
+
+    file = request.files['additional_image']
+    if file.filename == '':
+        flash('No selected file', 'warning')
+        return redirect(request.referrer)
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        # Update the database entry for the pest/weed to include the new image filename
+        try:
+            cursor = getCursor()
+            cursor.execute("""
+                UPDATE pest_directory 
+                SET additional_image = %s
+                WHERE agriculture_id = %s
+            """, (filename, agriculture_id))
+            flash('Image uploaded successfully', 'success')
+        except Exception as e:
+            flash(f"An error occurred while saving the image: {str(e)}", 'danger')
+
+    else:
+        flash('Allowed file types are png, jpg, jpeg, gif', 'warning')
+
+    return redirect(url_for('admin.update_pest_weed_details', agriculture_id=agriculture_id))
+
+@admin_page.route('/add_image/<int:agriculture_id>', methods=['GET'])
+@role_required('admin')
+def add_image(agriculture_id):
+    return render_template('admin_add_image.html', agriculture_id=agriculture_id)
 
 @admin_page.route('/update_pest_weed_details/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('admin')
@@ -413,20 +459,28 @@ def add_pest_weed():
             biology_description = request.form.get('biology_description')
             impacts = request.form.get('impacts')
             control = request.form.get('control')
-            primary_image = request.form.get('primary_image')
-            
+            primary_image = request.files.get('primary_image')
+
+            filename = None
+            if primary_image and primary_image.filename != '':
+                if allowed_file(primary_image.filename):  # Ensure the file is allowed based on your function's logic
+                    filename = secure_filename(primary_image.filename)
+                    save_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+                    primary_image.save(save_path)
+                else:
+                    flash('Invalid file type.', 'warning')
+                    return redirect(request.url)
+
             # Insert data into database
-            cursor = getCursor()
             cursor.execute("""
-                INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image (image_data))
-                VALUES (%s, %s,  %s,  %s,  %s,  %s,  %s, %s)
-            """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image))
-            
+                INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, filename))
             flash('Pest/weed details added successfully.', 'success')
             # Redirect to the list of guides
             return redirect(url_for('admin.view_pest_directory'))
         except Exception as e:
-            flash('An error occurred: ' + str(e))
+            flash('An error occurred: ' + str(e), 'danger')
             return redirect(url_for('admin.add_pest_weed'))
 
 @admin_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
@@ -444,6 +498,11 @@ def delete_pest_weed(agriculture_id):
     
     # Redirect back to the pest directory page
     return redirect(url_for('admin.view_pest_directory'))
+
+@admin_page.route('/sources')
+@role_required('admin')
+def sources():
+    return render_template('admin_sources.html')
 
 # http://localhost:5000/logout - this will be the logout page
 @admin_page.route('/logout')

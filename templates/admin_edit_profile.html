@@ -15,12 +15,12 @@
     
     <div class="mb-3">
         <label for="first_name" class="form-label">First Name:</label>
-        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_data.first_name }}" required>
+        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_data.first_name }}" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
     </div>
 
     <div class="mb-3">
         <label for="last_name" class="form-label">Last Name:</label>
-        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_data.last_name }}" required>
+        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_data.last_name }}" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
     </div>
 
     <div class="mb-3">
@@ -29,8 +29,8 @@
     </div>
 
     <div class="mb-3">
-        <label for="address" class="form-label">Position:</label>
-        <input type="text" class="form-control" id="address" name="address" value="{{ user_data.position|title }}" required>
+        <label for="position" class="form-label">Position:</label>
+        <input type="text" class="form-control" id="position" name="position" value="{{ user_data.position|title }}" readonly>
     </div>
 
     <div class="mb-3">
@@ -40,12 +40,12 @@
 
     <div class="mb-3">
         <label for="work_phone_number" class="form-label">Work Phone Number:</label>
-        <input type="text" class="form-control" id="work_phone_number" name="phone_number" value="{{ user_data.work_phone_number }}" required>
+        <input type="text" class="form-control" id="work_phone_number" name="phone_number" value="{{ user_data.work_phone_number }}" required pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens.">
     </div>
 
     <div class="mb-3">
         <label for="hire_date" class="form-label">Hire Date:</label>
-        <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ user_data.hire_date }}" readonly>
+        <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ user_data.hire_date }}" required>
     </div>
 
     <div class="mb-3">

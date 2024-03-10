@@ -15,7 +15,9 @@ from flask import flash
 from decorators import role_required
 from flask import g
 import os
+from werkzeug.utils import secure_filename
 from flask import current_app
+from utils import save_image
 
 staff_page = Blueprint("staff", __name__, static_folder="static", 
                        template_folder="templates")
@@ -31,6 +33,9 @@ def getCursor():
     database=connect.dbname, autocommit=True)
     dbconn = connection.cursor(dictionary=True)
     return dbconn
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
 @staff_page.route('/staff_dashboard')
 @role_required('staff')
@@ -119,12 +124,12 @@ def change_password():
         user_data = cursor.fetchone()
 
         if not user_data:
-            flash('User not found.', 'error')
+            flash('User not found.', 'danger')
             return redirect(url_for('staff.change_password'))
 
         # Check if the old password matches
         if not hashing.check_value(user_data['password'], old_password, salt='abcd') or new_password != confirm_password:
-            flash('Invalid old password or new passwords do not match.', 'error')
+            flash('Invalid old password or new passwords do not match.', 'danger')
         else:
             # Hash the new password and update it in the database
             hashed_new_password = hashing.hash_value(new_password, salt='abcd')
@@ -167,6 +172,52 @@ def view_pest_weed_details(agriculture_id):
     pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
     return render_template('staff_view_pest_weed_details.html', item=pest_details)
 
+from flask import current_app, flash, redirect, request, url_for
+from werkzeug.utils import secure_filename
+import os
+# Import your utility function here, if it's in a separate module
+# from utils import save_image
+
+@staff_page.route('/upload_image/<int:agriculture_id>', methods=['POST'])
+@role_required('staff')
+def upload_image(agriculture_id):
+    if 'additional_image' not in request.files:
+        flash('No file part', 'warning')
+        return redirect(request.referrer)
+
+    file = request.files['additional_image']
+    if file.filename == '':
+        flash('No selected file', 'warning')
+        return redirect(request.referrer)
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        # Update the database entry for the pest/weed to include the new image filename
+        try:
+            cursor = getCursor()
+            cursor.execute("""
+                UPDATE pest_directory 
+                SET additional_image = %s
+                WHERE agriculture_id = %s
+            """, (filename, agriculture_id))
+            flash('Image uploaded successfully', 'success')
+        except Exception as e:
+            flash(f"An error occurred while saving the image: {str(e)}", 'danger')
+
+    else:
+        flash('Allowed file types are png, jpg, jpeg, gif', 'warning')
+
+    return redirect(url_for('staff.update_pest_weed_details', agriculture_id=agriculture_id))
+
+@staff_page.route('/add_image/<int:agriculture_id>', methods=['GET'])
+@role_required('staff')
+def add_image(agriculture_id):
+    return render_template('staff_add_image.html', agriculture_id=agriculture_id)
+
+
 @staff_page.route('/update_pest_weed_details/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('staff')
 def update_pest_weed_details(agriculture_id):
@@ -199,7 +250,7 @@ def update_pest_weed_details(agriculture_id):
         except Exception as e:
             flash('An error occurred: ' + str(e), 'danger')
         return redirect(url_for('staff.view_pest_weed_details', agriculture_id=agriculture_id))
-    
+
 @staff_page.route('/add_pest_weed', methods=['GET', 'POST'])
 @role_required('staff')
 def add_pest_weed():
@@ -216,19 +267,22 @@ def add_pest_weed():
             biology_description = request.form.get('biology_description')
             impacts = request.form.get('impacts')
             control = request.form.get('control')
-            
             primary_image = request.files.get('primary_image')
 
-            if primary_image and allowed_file(primary_image.filename):
-                filename = secure_filename(primary_image.filename)
-                save_path = os.path.join(current_app.root_path, current_app.config['/static'], filename)
-                primary_image.save(save_path)
+            filename = None
+            if primary_image and primary_image.filename != '':
+                if allowed_file(primary_image.filename):  # Ensure the file is allowed based on your function's logic
+                    filename = secure_filename(primary_image.filename)
+                    save_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+                    primary_image.save(save_path)
+                else:
+                    flash('Invalid file type.', 'warning')
+                    return redirect(request.url)
 
             # Insert data into database
-            cursor = getCursor()
             cursor.execute("""
                 INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image)
-                VALUES (%s, %s,  %s,  %s,  %s,  %s,  %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, filename))
             flash('Pest/weed details added successfully.', 'success')
             # Redirect to the list of guides
@@ -253,9 +307,10 @@ def delete_pest_weed(agriculture_id):
     # Redirect back to the pest directory page
     return redirect(url_for('staff.view_pest_directory'))
 
-# Example allowed_file function
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+@staff_page.route('/sources')
+@role_required('staff')
+def sources():
+    return render_template('staff_sources.html')
 
 # http://localhost:5000/logout - this will be the logout page
 @staff_page.route('/logout')

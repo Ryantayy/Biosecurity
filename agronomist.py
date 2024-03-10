@@ -156,6 +156,11 @@ def view_pest_weed_details(agriculture_id):
     pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
     return render_template('agronomist_view_pest_weed_details.html', item=pest_details)
 
+@agronomist_page.route('/sources')
+@role_required('agronomist')
+def sources():
+    return render_template('agronomist_sources.html')
+
 # http://localhost:5000/logout - this will be the logout page
 @agronomist_page.route('/logout')
 def logout():

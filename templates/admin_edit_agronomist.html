@@ -20,17 +20,17 @@
         <!-- Editable fields -->
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" class="form-control" id="username" name="username" value="{{ agronomist.username }}" required>
+            <input type="text" class="form-control" id="username" name="username" value="{{ agronomist.username }}" required pattern="^[a-zA-Z0-9_]{3,}$" title="Username must be at least 3 characters long and only contain letters, numbers, and underscores.">
         </div>
 
         <div class="form-group">
             <label for="firstName">First Name:</label>
-            <input type="text" class="form-control" id="firstName" name="first_name" value="{{ agronomist.first_name }}" required>
+            <input type="text" class="form-control" id="firstName" name="first_name" value="{{ agronomist.first_name }}" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
         </div>
 
         <div class="form-group">
             <label for="lastName">Last Name:</label>
-            <input type="text" class="form-control" id="lastName" name="last_name" value="{{ agronomist.last_name }}" required>
+            <input type="text" class="form-control" id="lastName" name="last_name" value="{{ agronomist.last_name }}" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
         </div>
 
         <div class="form-group">
@@ -45,12 +45,12 @@
 
         <div class="form-group">
             <label for="phoneNumber">Phone Number:</label>
-            <input type="tel" class="form-control" id="phoneNumber" name="phone_number" value="{{ agronomist.phone_number }}">
+            <input type="tel" class="form-control" id="phoneNumber" name="phone_number" value="{{ agronomist.phone_number }}" required pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens.">
         </div>
 
         <div class="form-group">
             <label for="dateJoined">Date Joined:</label>
-            <input type="date" class="form-control" id="dateJoined" name="date_joined" value="{{ agronomist.date_joined }}">
+            <input type="date" class="form-control" id="dateJoined" name="date_joined" value="{{ agronomist.date_joined }}" required>
         </div>
 
         <div class="form-group">

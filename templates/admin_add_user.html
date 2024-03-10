@@ -5,23 +5,45 @@
 {% block content %}
 <div class="container">
   <h2>Add User</h2>
-
   {% block additional_scripts %}
   <script>
-  window.roleChanged = function() {
-    var role = document.getElementById("role").value;
-    document.getElementById("agronomistFields").style.display = role === "agronomist" ? "block" : "none";
-    document.getElementById("staffFields").style.display = (role === "staff" || role === "admin") ? "block" : "none";
-  }
-  // Call roleChanged on page load
-  document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById("role").onchange = window.roleChanged;
-      // Call the function to set the correct initial state
-      window.roleChanged();
+    window.roleChanged = function() {
+      var role = document.getElementById("role").value;
+
+      // Handle agronomist fields
+      var agronomistFields = document.getElementById("agronomistFields");
+      var agronomistFieldsRequired = role === "agronomist";
+      agronomistFields.style.display = agronomistFieldsRequired ? "block" : "none";
+      // Set the required attribute based on the role
+      agronomistFields.querySelectorAll("input").forEach(function(input) {
+        if (agronomistFieldsRequired) {
+          input.setAttribute("required", "");
+        } else {
+          input.removeAttribute("required");
+        }
+      });
+
+      // Handle staff/admin fields
+      var staffFields = document.getElementById("staffFields");
+      var staffFieldsRequired = role === "staff" || role === "admin";
+      staffFields.style.display = staffFieldsRequired ? "block" : "none";
+      // Set the required attribute based on the role
+      staffFields.querySelectorAll("input").forEach(function(input) {
+        if (staffFieldsRequired) {
+          input.setAttribute("required", "");
+        } else {
+          input.removeAttribute("required");
+        }
+      });
+    }
+    // Call roleChanged on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById("role").onchange = window.roleChanged;
+        // Call the function to set the correct initial state
+        window.roleChanged();
     });
   </script>
   {% endblock %}
-
   <form action="{{ url_for('admin.add_user') }}" method="POST">
     <div class="form-group">
       <label for="role">Role</label>
@@ -39,15 +61,14 @@
     </div>
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" class="form-control" id="password" name="password" required minlength="8" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.">
-    </div>
+      <input type="password" name="password" class="form-control" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Password must be at least 8 characters long and have a mix of character types." required>
     <div class="form-group">
       <label for="firstName">First Name</label>
-      <input type="text" class="form-control" id="firstName" name="first_name" required pattern="[A-Za-z -]+" title="First name must only contain letters, spaces, or hyphens.">
+      <input type="text" class="form-control" id="firstName" name="first_name" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
     </div>
     <div class="form-group">
       <label for="lastName">Last Name</label>
-      <input type="text" class="form-control" id="lastName" name="last_name" required pattern="[A-Za-z -]+" title="Last name must only contain letters, spaces, or hyphens.">
+      <input type="text" class="form-control" id="lastName" name="last_name" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
     </div>
     <div class="form-group">
       <label for="email">Email</label>
@@ -65,15 +86,15 @@
     <div id="agronomistFields" style="display:none">
       <div class="form-group">
         <label for="address">Address</label>
-        <input type="text" class="form-control" id="address" name="address">
+        <input type="text" class="form-control" id="address" name="address" required>
       </div>
       <div class="form-group">
         <label for="phoneNumber">Phone Number</label>
-        <input type="tel" class="form-control" id="phoneNumber" name="phone_number">
+        <input type="text" class="form-control" id="phoneNumber" name="phone_number" pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens." required>
       </div>
       <div class="form-group">
         <label for="dateJoined">Date Joined</label>
-        <input type="date" class="form-control" id="dateJoined" name="date_joined">
+        <input type="date" class="form-control" id="dateJoined" name="date_joined" required>
       </div>
     </div>
 
@@ -81,15 +102,15 @@
     <div id="staffFields" style="display:none">
       <div class="form-group">
         <label for="workPhoneNumber">Work Phone Number</label>
-        <input type="tel" class="form-control" id="workPhoneNumber" name="work_phone_number">
+        <input type="tel" class="form-control" id="workPhoneNumber" name="work_phone_number" pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens." required>
       </div>
       <div class="form-group">
         <label for="hireDate">Hire Date</label>
-        <input type="date" class="form-control" id="hireDate" name="hire_date">
+        <input type="date" class="form-control" id="hireDate" name="hire_date" required>
       </div>
       <div class="form-group">
         <label for="department">Department</label>
-        <input type="text" class="form-control" id="department" name="department">
+        <input type="text" class="form-control" id="department" name="department" required>
       </div>
     </div>
 

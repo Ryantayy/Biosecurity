@@ -56,17 +56,17 @@ CREATE TABLE IF NOT EXISTS pest_directory (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-/* Insert 9 users into user table */
+/* Insert 9 users into user table*/
 INSERT INTO user (username, password, email, role) VALUES 
-('ryan', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'ryan@gmail.com', 'agronomist'),
-('ray', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'ray@gmail.com', 'agronomist'),
-('lukia', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'lukia@gmail.com', 'agronomist'),
-('luna', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'luna@gmail.com', 'agronomist'),
-('lina', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'lina@gmail.com', 'agronomist'),
-('lana', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'lana@gmail.com', 'staff'),
-('leila', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'leila@gmail.com', 'staff'),
-('lycan', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'lycan@gmail.com', 'staff'),
-('byan', 'eea689028ca0cbc7fc4f1bd824b1b9ed419bb5720565e364003a24e16aff1d3c', 'byan@gmail.com', 'admin');
+('ryan', 'f30812d888da717ac73244516f242d7a55e8b1728d1aaeeefa9be4ced85d6a46', 'ryan@gmail.com', 'agronomist'), 
+('ray', 'd5b8e1644d6736c198d8ba6f83036e1dd1e6abf3abf28e0befc781534f77b2a0', 'ray@gmail.com', 'agronomist'),
+('lukia', '46378f65ac5c43ab42d234b089bb0911a74b0a11027880ee3ffb340ccc395bf8', 'lukia@gmail.com', 'agronomist'),
+('luna', '3651a47345d3eee2ac1c6873b7dd102eb6ceac6cbec7f2b5bac9f46eddb29f2b', 'luna@gmail.com', 'agronomist'),
+('lina', 'dbcaf1a0b53174d6aa25884b273cfc7bb66201c0d1bc99b506b76a0cbfce1f30', 'lina@gmail.com', 'agronomist'),
+('lana', '4fef3313b5208b7c6572a9afecb1243751f9812cc3734864704833aec6b47702', 'lana@gmail.com', 'staff'),
+('leila', 'f30812d888da717ac73244516f242d7a55e8b1728d1aaeeefa9be4ced85d6a46', 'leila@gmail.com', 'staff'),
+('lycan', 'f30812d888da717ac73244516f242d7a55e8b1728d1aaeeefa9be4ced85d6a46', 'lycan@gmail.com', 'staff'),
+('byan', '1c7a3399958fa3dab4916321cfb546be09c8e972ef67f3789d726d9319d52b74', 'byan@gmail.com', 'admin');
 
 /* Insert 5 agronomists into the agronomist table */
 INSERT INTO agronomist (user_id, first_name, last_name, address, email, phone_number, date_joined, status)
@@ -134,5 +134,5 @@ INSERT INTO pest_directory (agriculture_id, item_type, common_name, scientific_n
 (17, 'weed', 'Dandelion', 'Taraxacum officinale', 'Perennial with a leafless, hollow stem and large yellow flower. Basal leaves are thin, smooth, with teeth pointing towards the base.', 'Native to Eurasia, flowers from early spring to autumn. Seeds dispersed by wind.', 'Thrives in dairy pastures, reducing crop yields and slowing hay drying.', 'Control by grazing management and chemical control (MCPA, 2,4-D) at the vegetative stage.', 'Dandelion-3.jpg', 'Dandelion-6.jpg'),
 (18, 'weed', 'Giant buttercup', 'Ranunculus acris', 'Perennial up to 1m tall with yellow glossy flowers and highly variable leaves. Common in dairy pastures in high-rainfall areas.', 'Introduced from Europe, reproduces via seeds and daughter rhizomes.', 'Reduces pasture’s stock-carrying capacity and can cause milk solids production loss.', 'Grazing management with sheep, grubbing/mowing before flowering, and chemical control with aminopyralid or triclopyr.', 'Giant-buttercup-flower.jpg', 'Giant-buttercup.jpg'),
 (19, 'weed', 'Hemlock', 'Conium maculatum', 'Tall, foul-smelling, with purple-spotted stems and small white flowers. All parts are poisonous.', 'Native to Europe, Asia, and North Africa, common in waste places and damp areas in NZ.', 'Toxic to humans and livestock, can cause death.', 'Control by grazing management, mowing, and chemical control (2,4-D, flumetsulam) without harming pasture components.', 'Conium-maculatum-ab.jpg', 'Conium-maculatum-k.jpg'),
-(20, 'weed', 'Ragwort', 'Jacobaea vulgaris', 'Biennial or perennial with bright yellow flowers and a fibrous root system. Forms a dense rosette in its first year.', 'Originated from Europe, Asia, and Siberia. Produces over 50,000 seeds, some lasting up to 20 years.', 'Alkaloid compounds are poisonous, damaging to the liver of horses and cattle. Toxic to deer and causes milk and honey taint.', 'Control by grazing management, chemical control (2,4-D, dicamba, triclopyr/picloram), mowing or grubbing, and integrated pest management.', 'Ragwort-flower.jpg', 'Ragwort-plant.jpeg');
+(20, 'weed', 'Ragwort', 'Jacobaea vulgaris', 'Biennial or perennial with bright yellow flowers and a fibrous root system. Forms a dense rosette in its first year.', 'Originated from Europe, Asia, and Siberia. Produces over 50,000 seeds, some lasting up to 20 years.', 'Alkaloid compounds are poisonous, damaging to the liver of horses and cattle. Toxic to deer and causes milk and honey taint.', 'Control by grazing management, chemical control (2,4-D, dicamba, triclopyr/picloram), mowing or grubbing, and integrated pest management.', 'Ragwort-flower.jpg', 'Ragwort-plant.jpg');
 

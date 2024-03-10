@@ -9,11 +9,11 @@
       <!-- Include other fields as necessary -->
       <div class="form-group">
         <label for="commonName">Common Name</label>
-        <input type="text" class="form-control" id="commonName" name="common_name" value="{{ item.common_name }}" required>
+        <input type="text" class="form-control" id="commonName" name="common_name" value="{{ item.common_name }}" required pattern="[A-Za-z ]+" title="Name must only contain letters and spaces.">
       </div>
       <div class="form-group">
         <label for="scientificName">Scientific Name</label>
-        <input type="text" class="form-control" id="scientificName" name="scientific_name" value="{{ item.scientific_name }}" required>
+        <input type="text" class="form-control" id="scientificName" name="scientific_name" value="{{ item.scientific_name }}" required pattern="[A-Za-z ]+" title="Name must only contain letters and spaces.">
       </div>
       <div class="form-group">
         <label for="keyCharacteristics">Key Characteristics</label>
