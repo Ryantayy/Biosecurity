@@ -23,10 +23,26 @@
     <div class="row">
         <div class="col text-right">
             <!-- Edit button -->
-            <a href="{{ url_for('admin.update_pest_weed_details', agriculture_id=item.agriculture_id) }}" class="btn btn-primary">Edit</a>
+            <a href="{{ url_for('admin.update_pest_weed_details', agriculture_id=item.agriculture_id) }}" class="btn btn-success">Edit</a>
+            <!-- Delete button -->
+            <a href="#" onclick="confirmDelete({{ item.agriculture_id }})" class="btn btn-danger">Delete</a>
             <!-- Back button -->
             <a href="{{ url_for('admin.view_pest_directory') }}" class="btn btn-secondary">Back</a>
         </div>
     </div>
 </div>
+
+<script>
+    function confirmDelete(agricultureId) {
+        var confirmAction = confirm("Are you sure you want to delete this item?");
+        if (confirmAction) {
+            // Generate the deletion URL using JavaScript
+            var deletionUrl = "{{ url_for('admin.delete_pest_weed', agriculture_id=999) }}".replace("999", agricultureId);
+            window.location.href = deletionUrl;
+        } else {
+            console.log("Deletion canceled");
+        }
+    }
+    </script>
+    
 {% endblock %}

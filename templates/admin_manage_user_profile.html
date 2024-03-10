@@ -1,0 +1,152 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Users Profiles{% endblock %}
+
+{% block content %}
+{% block additional_scripts %}
+<script>
+    $(document).ready(function() {
+        $('#profileTabs a').on('click', function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        });
+    });
+
+    function confirmDeleteUser(userId) {
+        var confirmAction = confirm("Are you sure you want to delete this user?");
+        if (confirmAction) {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/delete_user/${userId}`;
+            document.body.appendChild(form);
+            form.submit();
+        } else {
+            console.log("Deletion cancelled.");
+        }
+    }
+</script>
+{% endblock %}
+
+<h2 style="padding-top: 30px;">Users Profiles</h2>
+<!-- Tab Content -->
+<div class="tab-content" id="profileTabsContent">
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active btn-secondary" id="agronomist-tab" data-toggle="tab" href="#agronomist" role="tab" aria-controls="agronomist" aria-selected="true">Agronomist Profiles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link btn-secondary" id="staff-tab" data-toggle="tab" href="#staff" role="tab" aria-controls="staff" aria-selected="false">Staff Profiles</a>
+        </li>
+    </ul>
+    <!-- Agronomist Profiles Tab -->
+    <div class="tab-pane fade show active" id="agronomist" role="tabpanel" aria-labelledby="agronomist-tab">
+        <div class="container-fluid mt-3">
+            <div class="card">
+            <!-- Code to display a list of pests/weeds in a table. -->
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Agronomist_ID</th>
+                                    <th>User_ID </th>
+                                    <th>Username </th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Address</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Date Joined</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for agronomist in agronomistList %}
+                                <tr>
+                                    <td>{{ agronomist.agronomist_id|title }}</td>
+                                    <td>{{ agronomist.user_id|title }}</td>
+                                    <td>{{ agronomist.username }}</td>
+                                    <td>{{ agronomist.first_name|title }}</td>
+                                    <td>{{ agronomist.last_name|title }}</td>
+                                    <td>{{ agronomist.address|title }}</td>
+                                    <td>{{ agronomist.email}}</td>
+                                    <td>{{ agronomist.phone_number }}</td>
+                                    <td>{{ agronomist.date_joined }}</td>
+                                    <td>{{ agronomist.status|title }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Action Buttons">
+                                            <a href="{{ url_for('admin.edit_agronomist', user_id=agronomist.user_id) }}" class="btn btn-success">Edit</a>
+                                            <button onclick="confirmDeleteUser('{{ agronomist.user_id }}')" class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col text-right">
+            <a href="{{ url_for('admin.add_user') }}" class="btn btn-success mb-3">Add User</a>
+        </div>
+    </div>
+
+    <!-- Staff Profiles Tab -->
+    <div class="tab-pane fade" id="staff" role="tabpanel" aria-labelledby="staff-tab">
+        <div class="container-fluid mt-3">  
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Staff ID</th>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Work Phone No</th>
+                                    <th>Hire Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for staff in staffList %}
+                                <tr>
+                                    <td>{{ staff.staff_id|title }}</td>
+                                    <td>{{ staff.user_id|title }}</td>
+                                    <td>{{ staff.username }}</td>
+                                    <td>{{ staff.first_name|title }}</td>
+                                    <td>{{ staff.last_name|title }}</td>
+                                    <td>{{ staff.email }}</td>
+                                    <td>{{ staff.department|title }}</td>
+                                    <td>{{ staff.work_phone_number }}</td>
+                                    <td>{{ staff.hire_date }}</td>
+                                    <td>{{ staff.status|title }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Action Buttons">
+                                            <a href="{{ url_for('admin.edit_staff', user_id=staff.user_id) }}" class="btn btn-success">Edit</a>
+                                            <button onclick="confirmDeleteUser('{{ staff.user_id }}')" class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col text-right">
+            <a href="{{ url_for('admin.add_user') }}" class="btn btn-success mb-3">Add User</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

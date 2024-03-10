@@ -3,35 +3,111 @@
 {% block title %}Pest & Weed Directory{% endblock %}
 
 {% block content %}
+<style>
+    .image-header {
+        text-align: right; /* or 'center' depending on where you want the header to align */
+        padding-right: 15px; /* adjust as needed */
+    }
+    .image-cell {
+        text-align: right; /* aligns the images to the right */
+        vertical-align: middle; /* centers the images vertically */
+    }
+    .image-cell img {
+        width: 150px; /* adjust this value to make the images larger */
+        height: auto; /* keeps the aspect ratio of the images */
+        object-fit: cover; /* ensures the images cover the area without stretching */
+    }
+</style>
+
 <h2 class="mb-4">Pest & Weed Directory</h2>
-<div class="container mt-4">
-    <div class="row justify-content-end mb-3">
-        <a href="{{ url_for('staff.add_pest_weed') }}" class="btn btn-success">Add New</a>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs" id="pestWeedTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active btn-secondary" id="pest-tab" data-toggle="tab" href="#pests" role="tab" aria-controls="pests" aria-selected="true">Pests</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link btn-secondary" id="weed-tab" data-toggle="tab" href="#weeds" role="tab" aria-controls="weeds" aria-selected="false">Weeds</a>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="pestWeedTabsContent">
+    <!-- Pests Tab -->
+    <div class="tab-pane fade show active" id="pests" role="tabpanel" aria-labelledby="pest-tab">
+        <div class="container mt-4">
+            <div class="row justify-content-end mb-3">
+                <a href="{{ url_for('staff.add_pest_weed', type='pest') }}" class="btn btn-success">Add New Pest</a>
+            </div>
+            <div class="table-responsive">
+                <!-- Table headers -->
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Common Name</th>
+                            <th class="image-header">Image</th>
+                        </tr>
+                    </thead>
+                     <!-- Table body -->
+                    <tbody>
+                        {% for item in pestList %}
+                        <tr>
+                            <td>{{ item.common_name|title }}</td>
+                            <td class="image-cell">
+                                <!-- Link to the detailed information page -->
+                                <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                    <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="thead-light">
-                <tr>
-                    <th>Type</th>
-                    <th>Common Name</th>
-                    <th>Image</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in pestDirectoryList %}
-                <tr>
-                    <td>{{ item.item_type|title }}</td>
-                    <td>{{ item.common_name|title }}</td>
-                    <td>
-                        <!-- Link to the detailed information page -->
-                        <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
-                            <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <!-- Weeds Tab -->
+    <div class="tab-pane fade" id="weeds" role="tabpanel" aria-labelledby="weed-tab">
+        <div class="container mt-4">
+            <div class="row justify-content-end mb-3">
+                <a href="{{ url_for('staff.add_pest_weed', item_type='weed') }}" class="btn btn-success">Add New Weed</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Common Name</th>
+                            <th class="image-header">Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in weedList %}
+                        <tr>
+                            <td>{{ item.common_name|title }}</td>
+                            <td class="image-cell">
+                                <!-- Link to the detailed information page -->
+                                <a href="{{ url_for('staff.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                    <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+    $(document).ready(function() {
+        $('#pestWeedTabs a').on('click', function (e) {
+            e.preventDefault()
+            $(this).tab('show')
+        });
+    });
+</script>
 {% endblock %}

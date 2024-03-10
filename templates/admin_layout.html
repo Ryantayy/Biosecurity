@@ -12,13 +12,22 @@
 			<div>
 				<h1>Biosecurity Guide</h1>
                 <a href="{{ url_for('admin.admin_home') }}"><i class="fas fa-home"></i>Home</a>
-				<a href="{{ url_for('admin.view_agronomist_profile') }}"><i class="fas fa-user-circle"></i>Agronomist Profiles</a>
+				<a href="{{ url_for('admin.manage_user_profile') }}"><i class="fas fa-user-circle"></i>Manage Users</a>
 				<a href="{{ url_for('admin.view_pest_directory') }}"><i class="fas fa-bug"></i>Pest Directory</a>
 				<a href="{{ url_for('admin.admin_profile') }}"><i class="fas fa-user-circle"></i>Profile</a>
 				<a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
 			</div>
 		</nav>
-		<div class="content">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+			<div class="alert alert-{{ category }}">
+				{{ message }}
+			</div>
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
+		<div class="container-lg">
 			{% block content %}{% endblock %}
 		</div>
 	<!-- jQuery and Popper.js for Bootstrap -->
@@ -26,6 +35,5 @@
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 	<!-- Bootstrap JS -->
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	</body>
 	</body>
 </html>

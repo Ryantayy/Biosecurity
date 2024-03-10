@@ -14,6 +14,8 @@ from functools import wraps
 from flask import flash
 from decorators import role_required
 from flask import g
+import os
+from flask import current_app
 
 staff_page = Blueprint("staff", __name__, static_folder="static", 
                        template_folder="templates")
@@ -145,10 +147,16 @@ def view_agronomist_profile():
 @role_required('staff')
 def view_pest_directory():
     cursor = getCursor()
-    #Fetch  the list of pests/weeds from the database
-    cursor.execute("SELECT * FROM pest_directory;")
-    pest_directory_list = cursor.fetchall()
-    return render_template('staff_pest_directory.html', pestDirectoryList = pest_directory_list)
+    
+    # Fetch the list of pests from the database
+    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'pest';")
+    pest_list = cursor.fetchall()
+
+    # Fetch the list of weeds from the database
+    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'weed';")
+    weed_list = cursor.fetchall()
+    
+    return render_template('staff_pest_directory.html', pestList=pest_list, weedList=weed_list)
 
 @staff_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('staff')
@@ -208,19 +216,25 @@ def add_pest_weed():
             biology_description = request.form.get('biology_description')
             impacts = request.form.get('impacts')
             control = request.form.get('control')
-            primary_image = request.form.get('primary_image')
             
+            primary_image = request.files.get('primary_image')
+
+            if primary_image and allowed_file(primary_image.filename):
+                filename = secure_filename(primary_image.filename)
+                save_path = os.path.join(current_app.root_path, current_app.config['/static'], filename)
+                primary_image.save(save_path)
+
             # Insert data into database
             cursor = getCursor()
             cursor.execute("""
-                INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image (image_data))
+                INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image)
                 VALUES (%s, %s,  %s,  %s,  %s,  %s,  %s, %s)
-            """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image))
+            """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, filename))
             flash('Pest/weed details added successfully.', 'success')
             # Redirect to the list of guides
             return redirect(url_for('staff.view_pest_directory'))
         except Exception as e:
-            flash('An error occurred: ' + str(e))
+            flash('An error occurred: ' + str(e), 'danger')
             return redirect(url_for('staff.add_pest_weed'))
 
 @staff_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
@@ -238,6 +252,10 @@ def delete_pest_weed(agriculture_id):
     
     # Redirect back to the pest directory page
     return redirect(url_for('staff.view_pest_directory'))
+
+# Example allowed_file function
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 # http://localhost:5000/logout - this will be the logout page
 @staff_page.route('/logout')

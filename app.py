@@ -17,16 +17,14 @@ from flask import g
 from agronomist import agronomist_page
 from staff import staff_page
 from admin import admin_page
+import os
+from flask import current_app
 
 app = Flask(__name__)
 hashing = Hashing(app)  #create an instance of hashing
 
 # Change this to your secret key (can be anything, it's for extra protection)
 app.secret_key = 'lemontea'
-
-@app.before_request
-def before_request():
-    g.hashing = hashing
 
 app.register_blueprint(agronomist_page, url_prefix="/agronomist")
 app.register_blueprint(staff_page, url_prefix="/staff")
@@ -43,6 +41,11 @@ def getCursor():
     database=connect.dbname, autocommit=True)
     dbconn = connection.cursor(dictionary=True)
     return dbconn
+
+@app.before_request
+def before_request():
+    # Make hashing available in g
+    g.hashing = hashing
 
 @app.route('/')
 def index():

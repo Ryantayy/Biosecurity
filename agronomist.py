@@ -137,10 +137,15 @@ def change_password():
 @role_required('agronomist')
 def view_pest_directory():
     cursor = getCursor()
-    #Fetch  the list of pests/weeds from the database
-    cursor.execute("SELECT * FROM pest_directory;")
-    pest_directory_list = cursor.fetchall()
-    return render_template('agronomist_pest_directory.html', pestDirectoryList = pest_directory_list)
+    # Fetch the list of pests from the database
+    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'pest';")
+    pest_list = cursor.fetchall()
+
+    # Fetch the list of weeds from the database
+    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'weed';")
+    weed_list = cursor.fetchall()
+    
+    return render_template('agronomist_pest_directory.html', pestList=pest_list, weedList=weed_list)
 
 @agronomist_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('agronomist')

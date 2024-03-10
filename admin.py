@@ -86,8 +86,8 @@ def edit_profile():
                             UPDATE staffadmin SET first_name = %s, last_name = %s, email = %s, work_phone_number = %s
                             WHERE staff_id = %s AND user_id = %s""", 
                             (first_name, last_name, email, work_phone_number, staff_id, session['user_id']))
-            flash('Profile successfully updated.')
-            return redirect(url_for('admin_profile'))
+            flash('Profile successfully updated.', 'success')
+            return redirect(url_for('admin.admin_profile'))
     
         cursor.execute("""
                         SELECT u.*, s.*
@@ -99,7 +99,7 @@ def edit_profile():
             return render_template('admin_edit_profile.html', user_data=user_data)
         else:
             flash('User data not found.')
-            return redirect(url_for('admin.profile'))
+            return redirect(url_for('admin.admin_profile'))
 
 @admin_page.route('/change_password', methods=['GET', 'POST'])
 @role_required('admin')
@@ -122,33 +122,238 @@ def change_password():
 
         # Check if the old password matches
         if not hashing.check_value(user_data['password'], old_password, salt='abcd') or new_password != confirm_password:
-            flash('Invalid old password or new passwords do not match.', 'error')
+            flash('Invalid old password or new passwords do not match.', 'danger')
         else:
             # Hash the new password and update it in the database
             hashed_new_password = hashing.hash_value(new_password, salt='abcd')
             cursor.execute("UPDATE user SET password = %s WHERE user_id = %s", (hashed_new_password, session['user_id'],))
             flash('Your password has been updated successfully.', 'success')
 
-        return redirect(url_for('admin_profile'))
+        return redirect(url_for('admin.admin_profile'))
     return render_template('admin_change_password.html')
 
-@admin_page.route('/view_agronomist_profile')
+@admin_page.route('/manage_user_profile')
 @role_required('admin')
-def view_agronomist_profile():
+def manage_user_profile():
     cursor = getCursor()
     #Fetch  the list of pests/weeds from the database
-    cursor.execute("SELECT * FROM agronomist;")
+    cursor.execute("""SELECT * 
+                    FROM agronomist a
+                    LEFT JOIN user u ON a.user_id = u.user_id;""")
     agronomist_list = cursor.fetchall()
-    return render_template('admin_view_agronomist_profile.html', agronomistList = agronomist_list)
+    cursor.execute("""SELECT * 
+                    FROM staffadmin s
+                    LEFT JOIN user u ON s.user_id = u.user_id;""")
+    staff_list = cursor.fetchall()
+    return render_template('admin_manage_user_profile.html', agronomistList = agronomist_list, staffList = staff_list)
+
+@admin_page.route('/add_user', methods=['GET', 'POST'])
+@role_required('admin')
+def add_user():
+    if request.method == 'GET':
+        # Display the form to add a new user
+        return render_template('admin_add_user.html')
+    elif request.method == 'POST':
+        try:
+            cursor = getCursor()  
+            # Extract form data common to both roles
+            role = request.form['role']
+            username = request.form['username']
+            raw_password = request.form['password']
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+            email = request.form['email']
+            address = request.form['address']
+            phone_number = request.form.get('phone_number') 
+            date_joined = request.form.get('date_joined')
+            status = request.form.get('status') 
+            work_phone_number = request.form.get('work_phone_number')
+            hire_date = request.form.get('hire_date')
+            position = request.form.get('position')
+            department = request.form.get('department')
+            
+            from app import hashing
+            # Hash the password
+            hashed_password = hashing.hash_value(raw_password, salt='abcd')
+            
+            # Check if username or email already exists
+            cursor.execute("SELECT * FROM user WHERE username = %s OR email = %s", (username, email))
+            if cursor.fetchone():
+                flash('Username or email already exists.', 'danger')
+                return redirect(url_for('admin.add_user'))
+            
+            # Insert the new user into the database with their role
+            cursor.execute("INSERT INTO user (username, password, email, role) VALUES (%s, %s, %s, %s)", (username, hashed_password, email, role))
+            user_id = cursor.lastrowid
+            
+            # Insert role-specific details into their respective tables
+            if role == 'agronomist':
+                cursor.execute("INSERT INTO agronomist (user_id, first_name, last_name, address, email, phone_number, date_joined, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (user_id, first_name, last_name, address, email, phone_number, date_joined, status))
+            elif role == 'staff' or role == 'admin':
+                cursor.execute("INSERT INTO staffadmin (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status))
+            flash(f'User successfully added.', 'success')
+        except Exception as e:
+            flash(f"An error occurred: {e}", 'danger')
+        finally:
+            cursor.close()
+            connection.close()
+        return redirect(url_for('admin.manage_user_profile'))
+
+@admin_page.route('/edit_agronomist/<int:user_id>', methods=['GET', 'POST'])
+@role_required('admin')
+def edit_agronomist(user_id):
+    cursor = getCursor()
+    
+    if request.method == 'GET':
+        cursor.execute("""SELECT * 
+                        FROM agronomist a 
+                        LEFT JOIN user u ON u.user_id = a.user_id 
+                        WHERE u.user_id = %s""", (user_id,))
+        agronomist = cursor.fetchone()
+        if agronomist is None:
+            flash("User not found.", "danger")
+            return redirect(url_for('manage_user_profile'))
+        return render_template('admin_edit_agronomist.html', agronomist = agronomist)
+
+    elif request.method == 'POST':
+        username = request.form.get('username')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        address = request.form.get('address')
+        email = request.form.get('email')
+        phone_number = request.form.get('phone_number')
+        date_joined = request.form.get('date_joined')
+        status = request.form.get('status')
+
+        try:
+            # Update user table
+            cursor.execute(
+                """UPDATE user SET username = %s, email = %s WHERE user_id = %s""",
+                (username, email, user_id)
+            )
+            
+            # Update agronomist table
+            cursor.execute(
+                """UPDATE agronomist SET first_name = %s, last_name = %s, address = %s, phone_number = %s, date_joined = %s, status = %s WHERE user_id = %s""",
+                (first_name, last_name, address, phone_number, date_joined, status, user_id)
+            )
+            
+            flash("User profile updated successfully.", "success")
+        except Exception as e:
+            flash("An error occurred: " + str(e), "danger")
+        finally:
+            cursor.close()
+
+        return redirect(url_for('admin.manage_user_profile'))
+    
+@admin_page.route('/edit_staff/<int:user_id>', methods=['GET', 'POST'])
+@role_required('admin')
+def edit_staff(user_id):
+    cursor = getCursor()
+    
+    if request.method == 'GET':
+        cursor.execute("""SELECT * 
+                        FROM staffadmin s 
+                        LEFT JOIN user u ON u.user_id = s.user_id 
+                        WHERE u.user_id = %s""", (user_id,))
+        staff = cursor.fetchone()
+        if staff is None:
+            flash("User not found.", "danger")
+            return redirect(url_for('manage_user_profile'))
+        return render_template('admin_edit_staff.html', staff = staff)
+
+    elif request.method == 'POST':
+        username = request.form.get('username')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        email = request.form.get('email')
+        work_phone_number = request.form.get('work_phone_number')
+        hire_date = request.form.get('hire_date')
+        position = request.form.get('position')
+        department = request.form.get('department')
+        status = request.form.get('status')
+
+        try:
+            # Update user table
+            cursor.execute(
+                """UPDATE user SET username = %s, email = %s WHERE user_id = %s""",
+                (username, email, user_id)
+            )
+            
+            # Update agronomist table
+            cursor.execute(
+                """UPDATE staffadmin SET first_name = %s, last_name = %s, work_phone_number = %s, hire_date = %s, position = %s, department = %s, status = %s WHERE user_id = %s""",
+                (first_name, last_name, work_phone_number, hire_date, position, department, status, user_id)
+            )
+            
+            flash("User profile updated successfully.", "success")
+        except Exception as e:
+            flash("An error occurred: " + str(e), "danger")
+        finally:
+            cursor.close()
+
+        return redirect(url_for('admin.manage_user_profile'))
+
+@admin_page.route('/change_user_password/<int:user_id>', methods=['GET', 'POST'])
+@role_required('admin')
+def change_user_password(user_id):
+    cursor = getCursor()
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+
+        # Ensure the new passwords match
+        if new_password != confirm_password:
+            flash('New passwords do not match.', 'danger')
+            return redirect(url_for('admin.edit_user', user_id=user_id))
+
+        # Hash the new password
+        hashed_new_password = g.hashing.hash_value(new_password, salt='abcd')
+
+        try:
+            cursor.execute("UPDATE user SET password = %s WHERE user_id = %s", (hashed_new_password, user_id))
+            flash('Password successfully updated.', 'success')
+        except Exception as e:
+            flash(f"An error occurred: {e}", 'danger')
+
+        return redirect(url_for('admin.manage_user_profile', user_id=user_id))
+    else:
+        cursor.execute("SELECT * FROM user WHERE user_id = %s", (user_id,))
+        user = cursor.fetchone()
+        # For GET request, redirect to user edit page or show a custom password change form
+        return render_template('admin_change_user_password.html', user=user)
+
+
+@admin_page.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
+@role_required('admin')
+def delete_user(user_id):
+    try:
+        cursor = getCursor()
+        # Before deleting the user, you might want to delete or update any records associated with the user.
+        # For example, if the user has created posts, comments, etc., decide if you want to delete them or assign them to another user.
+        cursor.execute("DELETE FROM user WHERE user_id = %s", (user_id,))
+        flash('User successfully deleted.', 'success')
+    except Exception as e:
+        flash('Error deleting user: ' + str(e), 'danger')
+    finally:
+        cursor.close()
+    return redirect(url_for('admin.manage_user_profile'))
 
 @admin_page.route('/view_pest_directory')
 @role_required('admin')
 def view_pest_directory():
     cursor = getCursor()
-    #Fetch  the list of pests/weeds from the database
-    cursor.execute("SELECT * FROM pest_directory;")
-    pest_directory_list = cursor.fetchall()
-    return render_template('admin_pest_directory.html', pestDirectoryList = pest_directory_list)
+    
+    # Fetch the list of pests from the database
+    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'pest';")
+    pest_list = cursor.fetchall()
+
+    # Fetch the list of weeds from the database
+    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'weed';")
+    weed_list = cursor.fetchall()
+    
+    return render_template('admin_pest_directory.html', pestList=pest_list, weedList=weed_list)
+
 
 @admin_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('admin')
@@ -187,7 +392,7 @@ def update_pest_weed_details(agriculture_id):
                     control = %s
                     WHERE agriculture_id = %s
                 """, (common_name, scientific_name, key_characteristics, biology_description, impacts, control, agriculture_id))
-            flash('Pest/weed details updated successfully.')
+            flash('Pest/weed details updated successfully.', 'success')
         except Exception as e:
             flash('An error occurred: ' + str(e))
         return redirect(url_for('admin.view_pest_weed_details', agriculture_id=agriculture_id))
@@ -217,17 +422,14 @@ def add_pest_weed():
                 VALUES (%s, %s,  %s,  %s,  %s,  %s,  %s, %s)
             """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image))
             
-            # Commit the transaction if needed
-            connection.commit()
-            
-            flash('Pest/weed details added successfully.')
+            flash('Pest/weed details added successfully.', 'success')
             # Redirect to the list of guides
             return redirect(url_for('admin.view_pest_directory'))
         except Exception as e:
             flash('An error occurred: ' + str(e))
             return redirect(url_for('admin.add_pest_weed'))
 
-@admin_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['POST'])
+@admin_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def delete_pest_weed(agriculture_id):
     cursor = getCursor()
