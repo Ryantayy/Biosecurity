@@ -96,13 +96,10 @@ Data Relationship: When the page is loaded, the add_driver() function fetches th
 
 ### Assumptions and design decisions: <br>
 Assumptions: 
-- Drivers aged 17 and older should not have a designated caredriver.
-- The age of the driver is limited to 10 to 100.
-- The data for cones is either None or an integer.
-- The data for wd is either 0 or 1.
-- A car model can be associated with more than one car_num (Eg. MX-5).
-- Driver's name is to be sorted in surname and last name order but displayed in a conventional way.
-- Only course A-F is available for this competition. 
+- Administrators and staff cannot delete their own profiles.
+- Administrators cannot change the role of staff and agronomists, they can only add new users with associated roles.
+- Website can be further customised to include more role-specific features.
+- Any new users would only be registered through the webpage.
 
 ### Design decision: 
 The website was crafted with an emphasis on both functionality and aesthetics. Here's a breakdown of the design decisions and their rationale:<br>
