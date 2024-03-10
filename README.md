@@ -1,5 +1,5 @@
 # COMP639 Studio Project – Semester 1 2024
-Individual Assignment
+# Individual Assignment
 **Name**: Ryan Tay Peng Yeow <br>
 **Student ID**: 1157892
 
