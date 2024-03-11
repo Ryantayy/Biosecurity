@@ -271,7 +271,7 @@ Throughout the development of the web application, several assumptions were made
 - Role Modification Limitations: Administrators are restricted from changing the roles of staff and agronomists post-creation. Their primary ability concerning user roles is to assign them appropriately at the time of new user creation. <br>
 - Scalability and Customization: The web application is designed with future expansion in mind, allowing for the introduction of additional features and functionalities tailored to specific roles as the need arises.<br>
 - User Registration Process: The platform mandates that all new user registrations occur directly through the website, ensuring a consistent and controlled entry point for user addition to the system. <br>
-- The application assumes a basic level of security for user authentication and authorization, primarily through session management and password hashing.
+- Security: The application assumes a basic level of security for user authentication and authorization, primarily through session management and password hashing.
 
 ### Design decision: 
 The website was crafted with an emphasis on both functionality and aesthetics. Here's a breakdown of the design decisions and their rationale:<br><br>
