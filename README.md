@@ -291,9 +291,9 @@ The website was crafted with an emphasis on both functionality and aesthetics. H
 - **Rationale**: To enhance the application's scalability and maintainability by segregating functionalities based on user roles.
 - **Impact**: Facilitated role-based access control and streamlined the development process by allowing independent development and testing of each module.
 
-**Role-Based Access Control (RBAC)**
+**Role-Based Access Control**
 - **Rationale**: To ensure users can only access information and functionalities relevant to their roles, enhancing security and user experience.
-- **Impact**: Implemented through decorators, RBAC prevents unauthorized access and simplifies navigation by presenting users with only the relevant options.
+- **Impact**: Implemented through decorators, Role-Based Access Control prevents unauthorized access and simplifies navigation by presenting users with only the relevant options.
 
 **Password Hashing for Security**
 - **Rationale**: To secure user passwords against potential database breaches, ensuring that passwords are not stored in plain text.
