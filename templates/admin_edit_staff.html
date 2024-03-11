@@ -3,61 +3,76 @@
 {% block title %}Edit Staff{% endblock %}
 
 {% block content %}
+<!-- Form for editing staff profile -->
 <div class="container mt-5">
+    <!-- Title for the edit staff profile section -->
     <h2>Edit Staff Profile</h2>
+
+    <!-- Form for submitting updated staff profile -->
     <form action="{{ url_for('admin.edit_staff', user_id=staff.user_id) }}" method="POST">
         <!-- Display only, not editable -->
+        <!-- Input field for displaying staff ID -->
         <div class="form-group">
             <label for="staffId">Staff ID:</label>
             <input type="text" class="form-control" id="staffId" value="{{ staff.staff_id }}" disabled>
         </div>
 
+        <!-- Input field for displaying user ID -->
         <div class="form-group">
             <label for="userId">User ID:</label>
             <input type="text" class="form-control" id="userId" value="{{ staff.user_id }}" disabled>
         </div>
 
         <!-- Editable fields -->
+        <!-- Input field for editing username -->
         <div class="form-group">
             <label for="username">Username:</label>
             <input type="text" class="form-control" id="username" name="username" value="{{ staff.username }}" required pattern="^[a-zA-Z0-9_]{3,}$" title="Username must be at least 3 characters long and only contain letters, numbers, and underscores.">
         </div>
 
+        <!-- Input field for editing first name -->
         <div class="form-group">
             <label for="firstName">First Name:</label>
             <input type="text" class="form-control" id="firstName" name="first_name" value="{{ staff.first_name }}" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
         </div>
 
+        <!-- Input field for editing last name -->
         <div class="form-group">
             <label for="lastName">Last Name:</label>
             <input type="text" class="form-control" id="lastName" name="last_name" value="{{ staff.last_name }}" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
         </div>
 
+        <!-- Input field for editing email -->
         <div class="form-group">
             <label for="email">Email:</label>
             <input type="email" class="form-control" id="email" name="email" value="{{ staff.email }}" required>
         </div>
 
+        <!-- Input field for editing work phone number -->
         <div class="form-group">
             <label for="workPhoneNumber">Work Phone Number:</label>
             <input type="tel" class="form-control" id="workPhoneNumber" name="work_phone_number" value="{{ staff.work_phone_number }}" required pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens.">
         </div>
 
+        <!-- Input field for editing hire date -->
         <div class="form-group">
             <label for="hireDate">Hire Date:</label>
             <input type="date" class="form-control" id="hireDate" name="hire_date" value="{{ staff.hire_date }}">
         </div>
-        
+
+        <!-- Input field for displaying position (readonly) -->
         <div class="mb-3">
             <label for="position" class="form-label">Position:</label>
             <input type="text" class="form-control" id="position" name="position" value="{{ staff.position }}" readonly>
         </div>
 
+        <!-- Input field for editing department -->
         <div class="form-group">
             <label for="department">Department:</label>
             <input type="text" class="form-control" id="position" name="department" value="{{ staff.department }}" required>
         </div>
 
+        <!-- Dropdown menu for selecting status -->
         <div class="form-group">
             <label for="status">Status:</label>
             <select class="form-control" id="status" name="status">
@@ -65,6 +80,8 @@
                 <option value="Inactive" {% if staff.status == 'Inactive' %}selected{% endif %}>Inactive</option>
             </select>
         </div>
+        
+        <!-- Button row -->
         <div class="form-row mt-3"> <!-- Ensures a margin at the top of the button row -->
             <!-- "Update" and "Cancel" buttons on the left -->
             <div class="col d-flex justify-content-start">
@@ -79,6 +96,3 @@
     </form>
 </div>
 {% endblock %}
-
-      
-

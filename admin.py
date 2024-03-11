@@ -1,22 +1,16 @@
-from flask import Blueprint
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import redirect
-from flask import url_for
-from flask import session
+# Import necessary modules from Flask
+from flask import Blueprint, Flask, render_template, request, redirect, url_for, session, flash, g, current_app
+
+# Import other required modules
 import re
 from datetime import datetime
 import mysql.connector
 from mysql.connector import FieldType
 import connect
 from functools import wraps
-from flask import flash
 from decorators import role_required
-from flask import g
 import os
 from werkzeug.utils import secure_filename
-from flask import current_app
 from utils import save_image
 
 admin_page = Blueprint("admin", __name__, static_folder="static", 
@@ -25,6 +19,7 @@ admin_page = Blueprint("admin", __name__, static_folder="static",
 dbconn = None
 connection = None
 
+# Function to establish a database connection and return a cursor
 def getCursor():
     global dbconn
     global connection
@@ -34,9 +29,11 @@ def getCursor():
     dbconn = connection.cursor(dictionary=True)
     return dbconn
 
+# Function to check if a file's extension is allowed
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
+# Route for the admin dashboard, protected by role
 @admin_page.route('/admin_dashboard')
 @role_required('admin')
 def admin_dashboard():
@@ -48,6 +45,7 @@ def admin_dashboard():
     return redirect(url_for('login'))
     pass
 
+# Route for the admin home page, identical to admin_dashboard
 @admin_page.route("/")
 @role_required('admin')
 def admin_home():
@@ -58,7 +56,7 @@ def admin_home():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
-# http://localhost:5000/profile - this will be the profile page, only accessible for loggedin users
+# Route for the admin profile page, displays user account info
 @admin_page.route('/profile')
 @role_required('admin')
 def admin_profile():
@@ -76,6 +74,7 @@ def admin_profile():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+# Route for editing the admin's profile
 @admin_page.route('/edit_profile', methods=['GET', 'POST'])
 @role_required('admin')
 def edit_profile():
@@ -95,7 +94,8 @@ def edit_profile():
                             (first_name, last_name, email, work_phone_number, staff_id, session['user_id']))
             flash('Profile successfully updated.', 'success')
             return redirect(url_for('admin.admin_profile'))
-    
+        # Fetch current user data to pre-fill the form for GET requests
+        # If user data not found, redirect back with an error message
         cursor.execute("""
                         SELECT u.*, s.*
                         FROM user u
@@ -108,12 +108,13 @@ def edit_profile():
             flash('User data not found.')
             return redirect(url_for('admin.admin_profile'))
 
+# Route for changing the admin's password
 @admin_page.route('/change_password', methods=['GET', 'POST'])
 @role_required('admin')
 def change_password():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
-
+     # Handles password change logic, including validation and updating the database
     hashing = g.hashing
     if request.method == 'POST':
         old_password = request.form['old_password']
@@ -139,11 +140,12 @@ def change_password():
         return redirect(url_for('admin.admin_profile'))
     return render_template('admin_change_password.html')
 
+# Route for managing user profiles, lists all users with options to edit or delete
 @admin_page.route('/manage_user_profile')
 @role_required('admin')
 def manage_user_profile():
     cursor = getCursor()
-    #Fetch  the list of pests/weeds from the database
+    # Fetches lists of users from the database and displays them on the page
     cursor.execute("""SELECT * 
                     FROM agronomist a
                     LEFT JOIN user u ON a.user_id = u.user_id;""")
@@ -155,6 +157,7 @@ def manage_user_profile():
     staff_list = cursor.fetchall()
     return render_template('admin_manage_user_profile.html', agronomistList = agronomist_list, staffList = staff_list)
 
+# Route for adding a new user, with form handling for both GET and POST requests
 @admin_page.route('/add_user', methods=['GET', 'POST'])
 @role_required('admin')
 def add_user():
@@ -164,7 +167,7 @@ def add_user():
     elif request.method == 'POST':
         try:
             cursor = getCursor()  
-            # Extract form data common to both roles
+            # Handles adding a new user, including form data processing and database insertion
             role = request.form['role']
             username = request.form['username']
             raw_password = request.form['password']
@@ -207,6 +210,7 @@ def add_user():
             connection.close()
         return redirect(url_for('admin.manage_user_profile'))
 
+# Routes for editing specific users, handling both displaying the edit form and processing updates
 @admin_page.route('/edit_agronomist/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def edit_agronomist(user_id):
@@ -253,7 +257,8 @@ def edit_agronomist(user_id):
             cursor.close()
 
         return redirect(url_for('admin.manage_user_profile'))
-    
+
+# Routes for editing specific users, handling both displaying the edit form and processing updates
 @admin_page.route('/edit_staff/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def edit_staff(user_id):
@@ -302,10 +307,12 @@ def edit_staff(user_id):
 
         return redirect(url_for('admin.manage_user_profile'))
 
+# Route for changing a user's password, with validation and database update logic
 @admin_page.route('/change_user_password/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def change_user_password(user_id):
     cursor = getCursor()
+    # Change another user's password
     if request.method == 'POST':
         new_password = request.form['new_password']
         confirm_password = request.form['confirm_password']
@@ -331,10 +338,11 @@ def change_user_password(user_id):
         # For GET request, redirect to user edit page or show a custom password change form
         return render_template('admin_change_user_password.html', user=user)
 
-
+# Route for deleting a user, with database deletion logic
 @admin_page.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def delete_user(user_id):
+    # Delete a user from the database
     try:
         cursor = getCursor()
         # Before deleting the user, you might want to delete or update any records associated with the user.
@@ -347,6 +355,7 @@ def delete_user(user_id):
         cursor.close()
     return redirect(url_for('admin.manage_user_profile'))
 
+# Routes for managing pests and weeds, including viewing, adding, editing, and deleting entries
 @admin_page.route('/view_pest_directory')
 @role_required('admin')
 def view_pest_directory():
@@ -410,6 +419,7 @@ def upload_image(agriculture_id):
 def add_image(agriculture_id):
     return render_template('admin_add_image.html', agriculture_id=agriculture_id)
 
+# Route for updating pest or weed details
 @admin_page.route('/update_pest_weed_details/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def update_pest_weed_details(agriculture_id):
@@ -442,7 +452,8 @@ def update_pest_weed_details(agriculture_id):
         except Exception as e:
             flash('An error occurred: ' + str(e))
         return redirect(url_for('admin.view_pest_weed_details', agriculture_id=agriculture_id))
-    
+
+# Route for adding a new pest or weed entry
 @admin_page.route('/add_pest_weed', methods=['GET', 'POST'])
 @role_required('admin')
 def add_pest_weed():
@@ -483,6 +494,7 @@ def add_pest_weed():
             flash('An error occurred: ' + str(e), 'danger')
             return redirect(url_for('admin.add_pest_weed'))
 
+# Route for deleting a pest or weed entry
 @admin_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def delete_pest_weed(agriculture_id):
@@ -499,6 +511,7 @@ def delete_pest_weed(agriculture_id):
     # Redirect back to the pest directory page
     return redirect(url_for('admin.view_pest_directory'))
 
+# Route for displaying sources or references page
 @admin_page.route('/sources')
 @role_required('admin')
 def sources():

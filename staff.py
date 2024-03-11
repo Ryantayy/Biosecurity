@@ -1,101 +1,100 @@
-from flask import Blueprint
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import redirect
-from flask import url_for
-from flask import session
+# Import necessary modules from Flask
+from flask import Blueprint, Flask, render_template, request, redirect, url_for, session, flash, g, current_app
+
+# Import other required modules
 import re
 from datetime import datetime
 import mysql.connector
-from mysql.connector import FieldType
 import connect
 from functools import wraps
-from flask import flash
-from decorators import role_required
-from flask import g
 import os
 from werkzeug.utils import secure_filename
-from flask import current_app
+from decorators import role_required
 from utils import save_image
 
-staff_page = Blueprint("staff", __name__, static_folder="static", 
-                       template_folder="templates")
+# Create a Blueprint for staff-related routes
+staff_page = Blueprint("staff", __name__, static_folder="static", template_folder="templates")
 
+# Global variables for database connection
 dbconn = None
 connection = None
 
+# Function to get a cursor for database operations
 def getCursor():
     global dbconn
     global connection
-    connection = mysql.connector.connect(user=connect.dbuser, \
-    password=connect.dbpass, host=connect.dbhost, auth_plugin='mysql_native_password',\
-    database=connect.dbname, autocommit=True)
+    # Establish a database connection and return a cursor
+    connection = mysql.connector.connect(user=connect.dbuser, password=connect.dbpass, host=connect.dbhost,
+                                         auth_plugin='mysql_native_password', database=connect.dbname, autocommit=True)
     dbconn = connection.cursor(dictionary=True)
     return dbconn
 
+# Function to check if a file has an allowed extension
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
+# Route to staff dashboard
 @staff_page.route('/staff_dashboard')
 @role_required('staff')
 def staff_dashboard():
-    # Check if user is loggedin
+    # Check if user is logged in
     if 'loggedin' in session:
-        # User is loggedin show them the home page
+        # Render staff home page if logged in
         return render_template('staff_home.html', username=session['username'])
-    # User is not loggedin redirect to login page
+    # Redirect to login if not logged in
     return redirect(url_for('login'))
-    pass
 
+# Route to staff home page
 @staff_page.route("/")
 @role_required('staff')
 def staff_home():
-    # Check if user is loggedin
+    # Check if user is logged in
     if 'loggedin' in session:
-        # User is loggedin show them the home page
+        # Render staff home page if logged in
         return render_template('staff_home.html', username=session['username'])
-    # User is not loggedin redirect to login page
+    # Redirect to login if not logged in
     return redirect(url_for('login'))
 
-# http://localhost:5000/profile - this will be the profile page, only accessible for loggedin users
+# Route to staff profile
 @staff_page.route('/profile')
 @role_required('staff')
 def staff_profile():
-    # Check if user is loggedin
+    # Check if user is logged in
     if 'loggedin' in session:
-        # We need all the account info for the user so we can display it on the profile page
+        # Fetch user's account info from the database
         cursor = getCursor()
         cursor.execute("""SELECT u.*, s.*
                         FROM user u
                         JOIN staffadmin s ON u.user_id = s.user_id
                         WHERE s.user_id = %s""", (session['user_id'],))
         account = cursor.fetchone()
-        # Show the profile page with account info
+        # Render staff profile page with account info
         return render_template('staff_profile.html', account=account)
-    # User is not loggedin redirect to login page
+    # Redirect to login if not logged in
     return redirect(url_for('login'))
 
+# Route to edit staff profile
 @staff_page.route('/edit_profile', methods=['GET', 'POST'])
 @role_required('staff')
 def edit_profile():
+    # Check if user is logged in
     if 'loggedin' in session:
         cursor = getCursor()
         if request.method == 'POST':
-            #Retrieve form data
+            # Update staff profile details in the database
             staff_id = request.form['staff_id']
             first_name = request.form['first_name']
             last_name = request.form['last_name']
             email = request.form['email']
             work_phone_number = request.form['phone_number']
-            
             cursor.execute("""
                             UPDATE staffadmin SET first_name = %s, last_name = %s, email = %s, work_phone_number = %s
                             WHERE staff_id = %s AND user_id = %s""", 
                             (first_name, last_name, email, work_phone_number, staff_id, session['user_id']))
             flash('Profile successfully updated.', 'success')
             return redirect(url_for('staff.staff_profile'))
-    
+        
+        # Fetch staff profile details from the database
         cursor.execute("""
                         SELECT u.*, s.*
                         FROM user u
@@ -108,6 +107,7 @@ def edit_profile():
             flash('User data not found.')
             return redirect(url_for('staff.staff_profile'))
 
+# Route to change staff password
 @staff_page.route('/change_password', methods=['GET', 'POST'])
 @role_required('staff')
 def change_password():
@@ -139,15 +139,17 @@ def change_password():
         return redirect(url_for('staff.staff_profile'))
     return render_template('staff_change_password.html')
 
+# Route to view agronomist profile
 @staff_page.route('/view_agronomist_profile')
 @role_required('staff')
 def view_agronomist_profile():
     cursor = getCursor()
-    #Fetch  the list of pests/weeds from the database
+    # Fetch the list of agronomists from the database
     cursor.execute("SELECT * FROM agronomist;")
     agronomist_list = cursor.fetchall()
-    return render_template('staff_view_agronomist_profile.html', agronomistList = agronomist_list)
+    return render_template('staff_view_agronomist_profile.html', agronomistList=agronomist_list)
 
+# Route to view pest directory
 @staff_page.route('/view_pest_directory')
 @role_required('staff')
 def view_pest_directory():
@@ -163,21 +165,17 @@ def view_pest_directory():
     
     return render_template('staff_pest_directory.html', pestList=pest_list, weedList=weed_list)
 
+# Route to view details of a specific pest or weed
 @staff_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('staff')
 def view_pest_weed_details(agriculture_id):
     cursor = getCursor()
-    # Fetch details of a specific pest/weed from the database using the item_id
+    # Fetch details of a specific pest/weed from the database using the agriculture_id
     cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
     pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
     return render_template('staff_view_pest_weed_details.html', item=pest_details)
 
-from flask import current_app, flash, redirect, request, url_for
-from werkzeug.utils import secure_filename
-import os
-# Import your utility function here, if it's in a separate module
-# from utils import save_image
-
+# Route to upload an additional image for a pest or weed
 @staff_page.route('/upload_image/<int:agriculture_id>', methods=['POST'])
 @role_required('staff')
 def upload_image(agriculture_id):
@@ -212,23 +210,26 @@ def upload_image(agriculture_id):
 
     return redirect(url_for('staff.update_pest_weed_details', agriculture_id=agriculture_id))
 
+# Route to render a form to add an image for a pest or weed
 @staff_page.route('/add_image/<int:agriculture_id>', methods=['GET'])
 @role_required('staff')
 def add_image(agriculture_id):
     return render_template('staff_add_image.html', agriculture_id=agriculture_id)
 
-
+# Route to update details of a specific pest or weed
 @staff_page.route('/update_pest_weed_details/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('staff')
 def update_pest_weed_details(agriculture_id):
     cursor = getCursor()
     if request.method == 'GET':
+        # Fetch pest/weed details from the database
         cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
         pest_details = cursor.fetchone()
         return render_template('staff_update_pest_weed_details.html', item=pest_details)
     
     elif request.method == 'POST':
         try:
+            # Retrieve updated pest/weed details from the form
             common_name = request.form.get('common_name')
             scientific_name = request.form.get('scientific_name')
             key_characteristics = request.form.get('key_characteristics')
@@ -236,6 +237,7 @@ def update_pest_weed_details(agriculture_id):
             impacts = request.form.get('impacts')
             control = request.form.get('control')
 
+            # Update pest/weed details in the database
             cursor.execute("""
                     UPDATE pest_directory SET 
                     common_name = %s, 
@@ -251,6 +253,7 @@ def update_pest_weed_details(agriculture_id):
             flash('An error occurred: ' + str(e), 'danger')
         return redirect(url_for('staff.view_pest_weed_details', agriculture_id=agriculture_id))
 
+# Route to add a new pest or weed
 @staff_page.route('/add_pest_weed', methods=['GET', 'POST'])
 @role_required('staff')
 def add_pest_weed():
@@ -259,7 +262,7 @@ def add_pest_weed():
         return render_template('staff_add_pest_weed.html')
     elif request.method == "POST":
         try:
-            # Retrieve form data
+            # Retrieve form data for adding a new pest/weed
             item_type = request.form.get('item_type')
             common_name = request.form.get('common_name')
             scientific_name = request.form.get('scientific_name')
@@ -271,7 +274,7 @@ def add_pest_weed():
 
             filename = None
             if primary_image and primary_image.filename != '':
-                if allowed_file(primary_image.filename):  # Ensure the file is allowed based on your function's logic
+                if allowed_file(primary_image.filename):  
                     filename = secure_filename(primary_image.filename)
                     save_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
                     primary_image.save(save_path)
@@ -279,18 +282,19 @@ def add_pest_weed():
                     flash('Invalid file type.', 'warning')
                     return redirect(request.url)
 
-            # Insert data into database
+            # Insert data into database for the new pest/weed
             cursor.execute("""
                 INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, filename))
             flash('Pest/weed details added successfully.', 'success')
-            # Redirect to the list of guides
+            # Redirect to the list of pests/weeds
             return redirect(url_for('staff.view_pest_directory'))
         except Exception as e:
             flash('An error occurred: ' + str(e), 'danger')
             return redirect(url_for('staff.add_pest_weed'))
 
+# Route to delete a pest or weed
 @staff_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
 @role_required('staff')
 def delete_pest_weed(agriculture_id):
@@ -307,19 +311,19 @@ def delete_pest_weed(agriculture_id):
     # Redirect back to the pest directory page
     return redirect(url_for('staff.view_pest_directory'))
 
+# Route to render sources page
 @staff_page.route('/sources')
 @role_required('staff')
 def sources():
     return render_template('staff_sources.html')
 
-# http://localhost:5000/logout - this will be the logout page
+# Route to logout
 @staff_page.route('/logout')
 @role_required('staff')
 def logout():
-    # Remove session data, this will log the user out
-   session.pop('loggedin', None)
-   session.pop('user_id', None)
-   session.pop('username', None)
-   session.pop('role', None)
-   # Redirect to login page
-   return redirect(url_for('login'))
+    # Clear session data and redirect to login page
+    session.pop('loggedin', None)
+    session.pop('user_id', None)
+    session.pop('username', None)
+    session.pop('role', None)
+    return redirect(url_for('login'))

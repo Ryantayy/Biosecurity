@@ -3,35 +3,48 @@
 {% block title %}{{ item.common_name|title }} Details{% endblock %}
 
 {% block content %}
+<!-- This block represents the form for editing pest/weed details -->
 <div class="container">
     <h2>Edit Pest/Weed Details</h2>
+    <!-- Form starts here -->
     <form action="{{ url_for('staff.update_pest_weed_details', agriculture_id=item.agriculture_id) }}" method="POST" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="commonName">Common Name</label>
-        <input type="text" class="form-control" id="commonName" name="common_name" value="{{ item.common_name }}" required>
-      </div>
-      <div class="form-group">
-        <label for="scientificName">Scientific Name</label>
-        <input type="text" class="form-control" id="scientificName" name="scientific_name" value="{{ item.scientific_name }}" required>
-      </div>
-      <div class="form-group">
-        <label for="keyCharacteristics">Key Characteristics</label>
-        <textarea class="form-control" id="keyCharacteristics" name="key_characteristics" required>{{ item.key_characteristics }}</textarea>
-      </div>
-      <div class="form-group">
-        <label for="biologyDescription">Biology Description</label>
-        <textarea class="form-control" id="biologyDescription" name="biology_description" required>{{ item.biology_description }}</textarea>
-      </div>
-      <div class="form-group">
-        <label for="impacts">Impacts</label>
-        <textarea class="form-control" id="impacts" name="impacts" required>{{ item.impacts }}</textarea>
-      </div>
-      <div class="form-group">
-        <label for="control">Control</label>
-        <textarea class="form-control" id="control" name="control" required>{{ item.control }}</textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Update Details</button>
-      <a href="#" onclick="history.back();" class="btn btn-secondary">Back</a>
+        <!-- Input field for common name -->
+        <div class="form-group">
+            <label for="commonName">Common Name</label>
+            <input type="text" class="form-control" id="commonName" name="common_name" value="{{ item.common_name }}" required>
+        </div>
+        <!-- Input field for scientific name -->
+        <div class="form-group">
+            <label for="scientificName">Scientific Name</label>
+            <input type="text" class="form-control" id="scientificName" name="scientific_name" value="{{ item.scientific_name }}" required>
+        </div>
+        <!-- Textarea for key characteristics -->
+        <div class="form-group">
+            <label for="keyCharacteristics">Key Characteristics</label>
+            <textarea class="form-control" id="keyCharacteristics" name="key_characteristics" required>{{ item.key_characteristics }}</textarea>
+        </div>
+        <!-- Textarea for biology description -->
+        <div class="form-group">
+            <label for="biologyDescription">Biology Description</label>
+            <textarea class="form-control" id="biologyDescription" name="biology_description" required>{{ item.biology_description }}</textarea>
+        </div>
+        <!-- Textarea for impacts -->
+        <div class="form-group">
+            <label for="impacts">Impacts</label>
+            <textarea class="form-control" id="impacts" name="impacts" required>{{ item.impacts }}</textarea>
+        </div>
+        <!-- Textarea for control measures -->
+        <div class="form-group">
+            <label for="control">Control</label>
+            <textarea class="form-control" id="control" name="control" required>{{ item.control }}</textarea>
+        </div>
+        <!-- Button to submit the form -->
+        <button type="submit" class="btn btn-primary">Update Details</button>
+        <!-- Button to go back -->
+        <a href="#" onclick="history.back();" class="btn btn-secondary">Back</a>
     </form>
-  </div>
+    <!-- Form ends here -->
+</div>
+<!-- End of container -->
 {% endblock %}
+<!-- End of content block -->

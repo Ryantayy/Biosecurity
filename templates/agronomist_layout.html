@@ -11,6 +11,7 @@
 		<nav class="navtop">
 			<div>
 				<h1>Biosecurity</h1>
+				<!-- Navigation links -->
                 <a href="{{ url_for('agronomist.agronomist_home') }}"><i class="fas fa-home"></i>Home</a>
 				<a href="{{ url_for('agronomist.view_pest_directory') }}"><i class="fas fa-bug"></i>Pest Directory</a>
 				<a href="{{ url_for('agronomist.agronomist_profile') }}"><i class="fas fa-user-circle"></i>Profile</a>
@@ -18,6 +19,7 @@
 				<a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
 			</div>
 		</nav>
+		<!-- Flash messages display -->
 		{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %}
 			{% for category, message in messages %}

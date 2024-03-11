@@ -3,8 +3,10 @@
 {% block title %}Agronomist Profiles{% endblock %}
 
 {% block content %}
+<!-- This block represents the table of agronomist profiles -->
 <div class="content">
     <h2 style="padding-top: 30px;">Agronomist Profiles</h2>
+    <!-- Table starts here -->
     <div class="table-responsive">
         <table class="table table-hover">
             <thead class="thead-light">
@@ -21,6 +23,7 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Loop through agronomistList to populate table rows -->
                 {% for agronomist in agronomistList %}
                 <tr>
                     <td>{{ agronomist.agronomist_id }}</td>
@@ -37,5 +40,8 @@
             </tbody>
         </table>
     </div>
+    <!-- Table ends here -->
 </div>
+<!-- End of content -->
 {% endblock %}
+<!-- End of content block -->

@@ -4,8 +4,10 @@
 
 {% block content %}
 <div class="container">
+    <!-- Form for adding pest/weed details -->
     <h2>Add Pest/Weed Details</h2>
     <form action="{{ url_for('admin.add_pest_weed') }}" method="POST" enctype="multipart/form-data">
+      <!-- Dropdown for selecting item type: Pest or Weed -->
       <div class="form-group">
         <label for="itemType">Item Type</label>
         <select class="form-control" id="itemType" name="item_type">
@@ -13,36 +15,45 @@
           <option value="Weed">Weed</option>
         </select>
       </div>
+      <!-- Input field for entering common name of the pest/weed -->
       <div class="form-group">
         <label for="commonName">Common Name</label>
         <input type="text" class="form-control" id="commonName" name="common_name" required pattern="[A-Za-z ]+" title="Name must only contain letters and spaces.">
       </div>
+      <!-- Input field for entering scientific name of the pest/weed -->
       <div class="form-group">
         <label for="scientificName">Scientific Name</label>
         <input type="text" class="form-control" id="scientificName" name="scientific_name" required pattern="[A-Za-z ]+" title="Name must only contain letters and spaces.">
       </div>
+      <!-- Text area for entering key characteristics of the pest/weed -->
       <div class="form-group">
         <label for="keyCharacteristics">Key Characteristics</label>
         <textarea class="form-control" id="keyCharacteristics" name="key_characteristics" required></textarea>
       </div>
+      <!-- Text area for entering biology description of the pest/weed -->
       <div class="form-group">
         <label for="biologyDescription">Biology Description</label>
         <textarea class="form-control" id="biologyDescription" name="biology_description" required></textarea>
       </div>
+      <!-- Text area for entering impacts of the pest/weed -->
       <div class="form-group">
         <label for="impacts">Impacts</label>
         <textarea class="form-control" id="impacts" name="impacts" required></textarea>
       </div>
+      <!-- Text area for entering control measures for the pest/weed -->
       <div class="form-group">
         <label for="control">Control</label>
         <textarea class="form-control" id="control" name="control" required></textarea>
       </div>
+      <!-- Input field for uploading primary image of the pest/weed -->
       <div class="form-group">
         <label for="primaryImage">Primary Image</label>
         <input type="file" class="form-control-file" id="primaryImage" name="primary_image">
       </div>
+      <!-- Button for submitting the form -->
       <button type="submit" class="btn btn-primary">Add Details</button>
+      <!-- Button for navigating back to the pest/weed directory -->
       <a href="{{ url_for('admin.view_pest_directory') }}" class="btn btn-secondary">Back to Directory</a>
     </form>
-  </div>
+</div>
 {% endblock %}

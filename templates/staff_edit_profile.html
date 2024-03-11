@@ -3,59 +3,73 @@
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
-
+<!-- This block represents the form for editing staff profile -->
 <div class="container mt-4">
-<h2>Edit Profile</h2>
+    <h2>Edit Profile</h2>
 
-<form action="{{ url_for('staff.edit_profile') }}" method="POST">
-    <div class="mb-3">
-        <label for="Staff ID" class="form-label">Staff ID:</label>
-        <input type="text" class="form-control" id="staff_id" name="staff_id" value="{{ user_data.staff_id }}" readonly>
-    </div>
-    
-    <div class="mb-3">
-        <label for="first_name" class="form-label">First Name:</label>
-        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_data.first_name }}" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
-    </div>
+    <!-- Form starts here -->
+    <form action="{{ url_for('staff.edit_profile') }}" method="POST">
+        <!-- Input field for staff ID -->
+        <div class="mb-3">
+            <label for="Staff ID" class="form-label">Staff ID:</label>
+            <input type="text" class="form-control" id="staff_id" name="staff_id" value="{{ user_data.staff_id }}" readonly>
+        </div>
+        
+        <!-- Input field for first name with validation for letters and spaces only -->
+        <div class="mb-3">
+            <label for="first_name" class="form-label">First Name:</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user_data.first_name }}" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
+        </div>
 
-    <div class="mb-3">
-        <label for="last_name" class="form-label">Last Name:</label>
-        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_data.last_name }}" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
-    </div>
+        <!-- Input field for last name with validation for letters and spaces only -->
+        <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name:</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user_data.last_name }}" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
+        </div>
 
-    <div class="mb-3">
-        <label for="email" class="form-label">Email:</label>
-        <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required>
-    </div>
+        <!-- Input field for email -->
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required>
+        </div>
 
-    <div class="mb-3">
-        <label for="address" class="form-label">Position:</label>
-        <input type="text" class="form-control" id="address" name="address" value="{{ user_data.position|title }}" readonly>
-    </div>
+        <!-- Input field for position -->
+        <div class="mb-3">
+            <label for="address" class="form-label">Position:</label>
+            <input type="text" class="form-control" id="address" name="address" value="{{ user_data.position|title }}" readonly>
+        </div>
 
-    <div class="mb-3">
-        <label for="department" class="form-label">Department:</label>
-        <input type="text" class="form-control" id="department" name="department" value="{{ user_data.department|title }}" required>
-    </div>
+        <!-- Input field for department -->
+        <div class="mb-3">
+            <label for="department" class="form-label">Department:</label>
+            <input type="text" class="form-control" id="department" name="department" value="{{ user_data.department|title }}" required>
+        </div>
 
-    <div class="mb-3">
-        <label for="work_phone_number" class="form-label">Work Phone Number:</label>
-        <input type="text" class="form-control" id="work_phone_number" name="phone_number" value="{{ user_data.work_phone_number }}" required pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens.">
-    </div>
+        <!-- Input field for work phone number with validation for numbers and hyphens only -->
+        <div class="mb-3">
+            <label for="work_phone_number" class="form-label">Work Phone Number:</label>
+            <input type="text" class="form-control" id="work_phone_number" name="phone_number" value="{{ user_data.work_phone_number }}" required pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens.">
+        </div>
 
-    <div class="mb-3">
-        <label for="hire_date" class="form-label">Hire Date:</label>
-        <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ user_data.hire_date }}" required>
-    </div>
+        <!-- Input field for hire date -->
+        <div class="mb-3">
+            <label for="hire_date" class="form-label">Hire Date:</label>
+            <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ user_data.hire_date }}" required>
+        </div>
 
-    <div class="mb-3">
-        <label for="status" class="form-label">Status:</label>
-        <input type="text" class="form-control" id="status" name="status" value="{{ user_data.status|title }}" readonly>
-    </div>
+        <!-- Input field for status -->
+        <div class="mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <input type="text" class="form-control" id="status" name="status" value="{{ user_data.status|title }}" readonly>
+        </div>
 
-    <button type="submit" class="btn btn-dark">Update Profile</button>
-    <a href="{{ url_for('staff.staff_profile') }}" class="btn btn-dark">Back</a>
-</form>
-
+        <!-- Button to submit the form -->
+        <button type="submit" class="btn btn-dark">Update Profile</button>
+        <!-- Button to navigate back to staff profile -->
+        <a href="{{ url_for('staff.staff_profile') }}" class="btn btn-dark">Back</a>
+    </form>
+    <!-- Form ends here -->
 </div>
+<!-- End of container -->
 {% endblock %}
+<!-- End of content block -->

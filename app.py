@@ -1,9 +1,7 @@
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import redirect
-from flask import url_for
-from flask import session
+# Import necessary modules from Flask
+from flask import Blueprint, Flask, render_template, request, redirect, url_for, session, flash, g, current_app
+
+# Import other required modules
 import re
 from datetime import datetime
 import mysql.connector
@@ -11,14 +9,11 @@ from mysql.connector import FieldType
 import connect
 from flask_hashing import Hashing
 from functools import wraps
-from flask import flash
 from decorators import role_required
-from flask import g
 from agronomist import agronomist_page
 from staff import staff_page
 from admin import admin_page
 import os
-from flask import current_app
 
 app = Flask(__name__)
 hashing = Hashing(app)  #create an instance of hashing
