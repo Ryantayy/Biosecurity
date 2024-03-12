@@ -192,11 +192,11 @@ Template: admin_add_user.html for GET, redirects to manage_user_profile on POST 
 Data Passed: User data from form on POST <br>
 Data Relationship: Renders a form to add a new user and inserts the user into the database on POST submission. <br><p/>
 
-8. **Edit User (/admin/edit_agronomist and /admin/edit_staff):** <br>
-Description: Routes for editing specific agronomist and staff users, handling both displaying the edit form and processing updates. <br>
-Templates: admin_edit_agronomist.html and admin_edit_staff.html for GET, redirects to manage_user_profile on POST <br>
-Data Passed: User data to be edited <br>
-Data Relationship: Fetches the user's current data, displays it for editing, and updates the database on POST submission. <br><p/>
+8. **edit_user (/edit_user/int:user_id):** <br>
+Description: Allows editing of specific user details including common information and role-specific details. <br>
+Template: admin_edit_user.html <br>
+Data Passed: User details fetched from the database based on the provided user ID. <br>
+Data Relationship: The user ID is extracted either from the URL or from a form submission depending on the method. Upon receiving the user ID, the corresponding user's details are fetched from the database, including common information and role-specific details. This data is then passed to the admin_edit_user.html template for display and editing. <br><p/>
 
 9. **Change User Password (/admin/change_user_password/int:user_id):** <br>
 Description: Allows changing another user's password. <br>
