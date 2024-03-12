@@ -80,9 +80,18 @@
         <input type="text" class="form-control" id="department" name="department" value="{{ user.department }}" required-on="staff">
       </div>
     </div>
-
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a href="{{ url_for('admin.manage_user_profile') }}" class="btn btn-secondary">Cancel</a>
+    <!-- Button row -->
+    <div class="form-row mt-3"> <!-- Ensures a margin at the top of the button row -->
+      <!-- "Update" and "Cancel" buttons on the left -->
+      <div class="col d-flex justify-content-start">
+          <button type="submit" class="btn btn-primary mr-2">Update</button>
+          <a href="{{ url_for('admin.manage_user_profile') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+      <!-- "Change Password" button on the right -->
+      <div class="col d-flex justify-content-end">
+          <a href="{{ url_for('admin.change_user_password', user_id=user.user_id) }}" class="btn btn-success">Change Password</a>
+      </div>
+    </div>
   </form>
 </div>
 
