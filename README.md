@@ -303,6 +303,9 @@ The website was crafted with an emphasis on both functionality and aesthetics. H
 - **Rationale**: To maintain user state across requests, enabling personalized user experiences and security checks.
 - **Impact**: Allowed seamless user experiences across different parts of the application while ensuring that users are authenticated and authorized for their actions.
 
+**Agricultural Theme and Color Palette**
+- **Rationale**: The choice of dark grey was used for the navigation bar and thematic photographs aimed to resonate with the agricultural domain, invoking a sense of growth, nature, and earthiness. 
+- **Impact**: This design decision not only enriched the visual appeal of the platform but also reinforced its purpose. The use of relevant imagery and a carefully curated color palette fostered a more engaging and relatable environment for users, particularly those with a background or interest in agriculture.
 
 ## Image Sources: <br>
 <p> AgPest » Pest directory. (n.d.). https://agpest.co.nz/pest-directory/ </p>
