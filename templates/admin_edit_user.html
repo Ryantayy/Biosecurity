@@ -120,7 +120,7 @@
           agronomistFields.querySelectorAll('input[required-on="agronomist"]').forEach(function(input) {
               input.setAttribute('required', '');
           });
-      } else if (selectedRole === 'staff') {
+      } else if (selectedRole === 'staff' || selectedRole === 'admin') {
           staffFields.style.display = 'block';
           staffFields.querySelectorAll('input[required-on="staff"]').forEach(function(input) {
               input.setAttribute('required', '');
