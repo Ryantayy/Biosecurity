@@ -1,0 +1,135 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 style="padding-top: 30px;">Edit User Profile</h2>
+  <form action="{{ url_for('admin.edit_user', user_id=user.user_id) }}" method="POST">
+    <!-- Common Fields -->
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required pattern="^[a-zA-Z0-9_]{3,}$" title="Username must be at least 3 characters long and only contain letters, numbers, and underscores.">
+    </div>
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input type="text" class="form-control" id="firstName" name="first_name" value="{{ user.first_name }}" required pattern="[A-Za-z ]+" title="First name must only contain letters and spaces.">
+    </div>
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input type="text" class="form-control" id="lastName" name="last_name" value="{{ user.last_name }}" required pattern="[A-Za-z ]+" title="Last name must only contain letters and spaces">
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+    </div>
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select class="form-control" id="status" name="status" value="{{ user.status }}" required>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+    </div>
+
+    <!-- Role Selection -->
+    <div class="form-group">
+      <label for="role">Role:</label>
+      <select class="form-control" id="roleSelect" name="role" onchange="toggleRoleFields()">
+        <option value="agronomist" {% if user.role == 'agronomist' %}selected{% endif %}>Agronomist</option>
+        <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff</option>
+        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+        <!-- Add other roles if necessary -->
+      </select>
+    </div>
+
+    <!-- Agronomist-specific Fields -->
+    <div id="agronomistFields" style="display:none">
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}" required-on="agronomist">
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input type="text" class="form-control" id="phoneNumber" name="phone_number" value="{{ user.phone_number }}" pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens." required-on="agronomist">
+      </div>
+      <div class="form-group">
+        <label for="dateJoined">Date Joined</label>
+        <input type="date" class="form-control" id="dateJoined" name="date_joined" value="{{ user.date_joined }}" required-on="agronomist">
+      </div>
+    </div>
+
+    <!-- Staff-specific Fields -->
+    <div id="staffFields" style="display:none">
+      <div class="form-group">
+        <label for="workPhoneNumber">Work Phone Number</label>
+        <input type="tel" class="form-control" id="workPhoneNumber" name="work_phone_number" value="{{ user.work_phone_number }}" pattern="[\d\-]+" title="Phone number must only contain numbers and hyphens." required-on="staff">
+      </div>
+      <div class="form-group">
+        <label for="hireDate">Hire Date</label>
+        <input type="date" class="form-control" id="hireDate" name="hire_date" value="{{ user.hire_date }}" required-on="staff">
+      </div>
+      <div class="form-group">
+        <label for="position">Position</label>
+        <select class="form-control" id="position" name="position" required-on="staff">
+            <option value="Staff" {{ "selected" if user.position == "Staff" }}>Staff</option>
+            <option value="Admin" {{ "selected" if user.position == "Admin" }}>Admin</option>
+        </select>
+    </div>    
+      <div class="form-group">
+        <label for="department">Department</label>
+        <input type="text" class="form-control" id="department" name="department" value="{{ user.department }}" required-on="staff">
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a href="{{ url_for('admin.manage_user_profile') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+
+{% block additional_scripts %}
+<script>
+  function toggleRoleFields() {
+      var selectedRole = document.getElementById('roleSelect').value;
+      var agronomistFields = document.getElementById('agronomistFields');
+      var staffFields = document.getElementById('staffFields');
+
+      // Hide both sets of role-specific fields
+      agronomistFields.style.display = 'none';
+      staffFields.style.display = 'none';
+
+      // Remove 'required' attribute from all role-specific inputs and clear value if it's 'None'
+      document.querySelectorAll('#agronomistFields input, #staffFields input').forEach(function(input) {
+          input.removeAttribute('required');
+          if (input.value === 'None') {
+              input.value = ''; // Clear the value if it's 'None'
+          }
+      });
+
+      // Show and enforce 'required' for selected role's fields
+      if (selectedRole === 'agronomist') {
+          agronomistFields.style.display = 'block';
+          agronomistFields.querySelectorAll('input[required-on="agronomist"]').forEach(function(input) {
+              input.setAttribute('required', '');
+          });
+      } else if (selectedRole === 'staff') {
+          staffFields.style.display = 'block';
+          staffFields.querySelectorAll('input[required-on="staff"]').forEach(function(input) {
+              input.setAttribute('required', '');
+          });
+      }
+
+  }
+
+  // Attach event listener for role changes
+  document.getElementById('roleSelect').addEventListener('change', toggleRoleFields);
+
+  // Initialize the form fields when the page loads
+  document.addEventListener('DOMContentLoaded', function() {
+      toggleRoleFields(); // Call on page load to properly set up the form
+  });
+</script>
+
+{% endblock %}
+
+{% endblock %}
+

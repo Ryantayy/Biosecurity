@@ -199,9 +199,9 @@ def add_user():
             
             # Insert role-specific details into their respective tables
             if role == 'agronomist':
-                cursor.execute("INSERT INTO agronomist (user_id, first_name, last_name, address, email, phone_number, date_joined, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (user_id, first_name, last_name, address, email, phone_number, date_joined, status))
+                cursor.execute("UPDATE agronomist (user_id, first_name, last_name, address, email, phone_number, date_joined, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (user_id, first_name, last_name, address, email, phone_number, date_joined, status))
             elif role == 'staff' or role == 'admin':
-                cursor.execute("INSERT INTO staffadmin (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status))
+                cursor.execute("UPDATE staffadmin (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status))
             flash(f'User successfully added.', 'success')
         except Exception as e:
             flash(f"An error occurred: {e}", 'danger')
@@ -211,97 +211,89 @@ def add_user():
         return redirect(url_for('admin.manage_user_profile'))
 
 # Routes for editing specific users, handling both displaying the edit form and processing updates
-@admin_page.route('/edit_agronomist/<int:user_id>', methods=['GET', 'POST'])
+@admin_page.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
-def edit_agronomist(user_id):
+def edit_user(user_id):
     cursor = getCursor()
-    
+    # Handle GET request
     if request.method == 'GET':
-        cursor.execute("""SELECT * 
-                        FROM agronomist a 
-                        LEFT JOIN user u ON u.user_id = a.user_id 
-                        WHERE u.user_id = %s""", (user_id,))
-        agronomist = cursor.fetchone()
-        if agronomist is None:
+        # Fetch the user data from the user table and their role-specific table
+        cursor.execute("""SELECT
+                        u.user_id AS user_id,
+                        u.username AS username,
+                        u.password AS password,
+                        u.email AS email,
+                        u.role AS role,
+                        s.staff_id AS staff_id,
+                        s.work_phone_number AS work_phone_number,
+                        s.hire_date AS hire_date,
+                        s.position AS position,
+                        s.department AS department,
+                        s.status AS status,
+                        a.agronomist_id AS agronomist_id,
+                        a.address AS address,
+                        a.phone_number AS phone_number,
+                        a.date_joined AS date_joined,
+                        COALESCE(s.first_name, a.first_name) AS first_name,
+                        COALESCE(s.last_name, a.last_name) AS last_name
+                        FROM user u
+                        LEFT JOIN staffadmin s ON u.user_id = s.user_id
+                        LEFT JOIN agronomist a ON u.user_id = a.user_id
+                        WHERE u.user_id = %s;""", (user_id,))
+        user = cursor.fetchone()
+        if not user:
             flash("User not found.", "danger")
-            return redirect(url_for('manage_user_profile'))
-        return render_template('admin_edit_agronomist.html', agronomist = agronomist)
+            return redirect(url_for('admin.manage_user_profile'))
+        
+        return render_template('admin_edit_user.html', user=user)
 
     elif request.method == 'POST':
-        username = request.form.get('username')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        address = request.form.get('address')
-        email = request.form.get('email')
-        phone_number = request.form.get('phone_number')
-        date_joined = request.form.get('date_joined')
-        status = request.form.get('status')
+        # Extract the form data
+        username = request.form['username']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        status = request.form['status']
+        new_role = request.form['role']
+        # Determine the current role of the user
+        cursor.execute("SELECT role FROM user WHERE user_id=%s", (user_id,))
+        current_role = cursor.fetchone()['role']
+
+        # Update common user information
+        cursor.execute("UPDATE user SET username=%s, email=%s, role=%s WHERE user_id=%s", (username, email, new_role, user_id))
+
+        if new_role != current_role:
+            if current_role == 'staff':
+                cursor.execute("DELETE FROM staffadmin WHERE user_id=%s", (user_id,))
+            elif current_role == 'agronomist':
+                cursor.execute("DELETE FROM agronomist WHERE user_id=%s", (user_id,))
 
         try:
-            # Update user table
-            cursor.execute(
-                """UPDATE user SET username = %s, email = %s WHERE user_id = %s""",
-                (username, email, user_id)
-            )
-            
-            # Update agronomist table
-            cursor.execute(
-                """UPDATE agronomist SET first_name = %s, last_name = %s, address = %s, phone_number = %s, date_joined = %s, status = %s WHERE user_id = %s""",
-                (first_name, last_name, address, phone_number, date_joined, status, user_id)
-            )
-            
+            # Insert or update new role information
+            if new_role == 'staff':
+                work_phone_number = request.form.get('work_phone_number')
+                hire_date = request.form.get('hire_date')
+                department = request.form.get('department')
+                position = request.form.get('position')
+                cursor.execute("""
+                    INSERT INTO staffadmin (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
+                    first_name=%s, last_name=%s, email=%s, work_phone_number=%s, hire_date=%s, position=%s, department=%s, status=%s
+                    """, (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status, 
+                            first_name, last_name, email, work_phone_number, hire_date, position, department, status))
+            elif new_role == 'agronomist':
+                address = request.form.get('address')
+                phone_number = request.form.get('phone_number')
+                date_joined = request.form.get('date_joined')
+                cursor.execute("""
+                    INSERT INTO agronomist (user_id, first_name, last_name, address, email, phone_number, date_joined, status) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
+                    first_name=%s, last_name=%s, address=%s, email=%s, phone_number=%s, date_joined=%s, status=%s
+                    """, (user_id, first_name, last_name, address, email, phone_number, date_joined, status, 
+                            first_name, last_name, address, email, phone_number, date_joined, status))
             flash("User profile updated successfully.", "success")
         except Exception as e:
-            flash("An error occurred: " + str(e), "danger")
-        finally:
-            cursor.close()
-
-        return redirect(url_for('admin.manage_user_profile'))
-
-# Routes for editing specific users, handling both displaying the edit form and processing updates
-@admin_page.route('/edit_staff/<int:user_id>', methods=['GET', 'POST'])
-@role_required('admin')
-def edit_staff(user_id):
-    cursor = getCursor()
-    
-    if request.method == 'GET':
-        cursor.execute("""SELECT * 
-                        FROM staffadmin s 
-                        LEFT JOIN user u ON u.user_id = s.user_id 
-                        WHERE u.user_id = %s""", (user_id,))
-        staff = cursor.fetchone()
-        if staff is None:
-            flash("User not found.", "danger")
-            return redirect(url_for('manage_user_profile'))
-        return render_template('admin_edit_staff.html', staff = staff)
-
-    elif request.method == 'POST':
-        username = request.form.get('username')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        email = request.form.get('email')
-        work_phone_number = request.form.get('work_phone_number')
-        hire_date = request.form.get('hire_date')
-        position = request.form.get('position')
-        department = request.form.get('department')
-        status = request.form.get('status')
-
-        try:
-            # Update user table
-            cursor.execute(
-                """UPDATE user SET username = %s, email = %s WHERE user_id = %s""",
-                (username, email, user_id)
-            )
-            
-            # Update agronomist table
-            cursor.execute(
-                """UPDATE staffadmin SET first_name = %s, last_name = %s, work_phone_number = %s, hire_date = %s, position = %s, department = %s, status = %s WHERE user_id = %s""",
-                (first_name, last_name, work_phone_number, hire_date, position, department, status, user_id)
-            )
-            
-            flash("User profile updated successfully.", "success")
-        except Exception as e:
-            flash("An error occurred: " + str(e), "danger")
+            flash(f"An error occurred: {e}", "danger")
         finally:
             cursor.close()
 

@@ -88,7 +88,7 @@
                                             <!-- Action buttons for editing and deleting agronomist -->
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="Action Buttons">
-                                                    <a href="{{ url_for('admin.edit_agronomist', user_id=agronomist.user_id) }}" class="btn btn-success">Edit</a>
+                                                    <a href="{{ url_for('admin.edit_user', user_id=agronomist.user_id) }}" class="btn btn-success">Edit</a>
                                                     <button onclick="confirmDeleteUser('{{ agronomist.user_id }}')" class="btn btn-danger">Delete</button>
                                                 </div>
                                             </td>
@@ -148,7 +148,7 @@
                                             <!-- Action buttons for editing and deleting staff -->
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="Action Buttons">
-                                                    <a href="{{ url_for('admin.edit_staff', user_id=staff.user_id) }}" class="btn btn-success">Edit</a>
+                                                    <a href="{{ url_for('admin.edit_user', user_id=staff.user_id) }}" class="btn btn-success">Edit</a>
                                                     <button onclick="confirmDeleteUser('{{ staff.user_id }}')" class="btn btn-danger">Delete</button>
                                                 </div>
                                             </td>
