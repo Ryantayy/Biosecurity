@@ -149,52 +149,64 @@ Data Relationship: Retrieves and displays agronomist profiles from the database 
 7. **View Pest Directory ( /staff/view_pest_directory ):** <br/>
 Description: Lists pests and weeds for staff to manage. <br/>
 Template: staff_pest_directory.html <br/>
-Data Passed: Lists of pests and weeds from the database. <br/>
-Data Relationship: Fetches and displays pests and weeds entries, allowing staff to perform management tasks like editing and deletion. <br/><p/>
+Data Passed: Lists of pests and weeds, and a map of primary images. <br/>
+Data Relationship: Retrieves and presents a comprehensive list of all pests and weeds from the pest_directory table, including their primary images. <br/><p/>
 
 8. **View Pest/Weed Details ( /staff/view_pest_weed_details/int:agriculture_id ):** <br/>
 Description: Shows detailed information for a specific pest or weed. <br/>
 Template: staff_view_pest_weed_details.html <br/>
-Data Passed: Details of a single pest or weed from the database. <br/>
-Data Relationship: Retrieves and displays detailed information about a particular pest/weed entry based on the provided agriculture_id. <br/><p/>
+Data Passed: Details of a single pest or weed, along with associated images. <br/>
+Data Relationship: Fetches and shows detailed data of a particular pest or weed entry from the pest_directory table and associated images from the images table, based on the provided agriculture_id. <br/><p/>
 
-9. **Upload Additional Image ( /staff/upload_image/int:agriculture_id ):** <br/>
-Description: Handles the upload of additional images for pests or weeds. <br/>
-Template: Redirects after POST <br/>
-Data Passed: Uploaded image file. <br/>
-Data Relationship: Accepts image uploads and updates the corresponding database entry with the image's filename after saving it to the server. <br/><p/>
-
-10. **Add Image ( /staff/add_image/int:agriculture_id ):** <br/>
-Description: Renders a form to upload an additional image for a specific pest or weed. <br/>
-Template: staff_add_image.html <br/>
-Data Passed: agriculture_id for identifying which pest or weed to add an image to. <br/>
-Data Relationship: Renders a form that allows staff to upload an additional image for a pest/weed. <br/><p/>
-
-11. **Update Pest/Weed Details ( /staff/update_pest_weed_details/int:agriculture_id ):** <br/>
+9. **Update Pest/Weed Details ( /staff/update_pest_weed_details/int:agriculture_id ):** <br/>
 Description: Allows staff to update details of a specific pest or weed. <br/>
 Template: staff_update_pest_weed_details.html for GET, redirects on POST. <br/>
 Data Passed: Updated pest/weed details from form. <br/>
 Data Relationship: For GET requests, pre-fills a form with existing pest/weed details. On POST, updates the database with the new details. <br/><p/>
 
-12. **Add Pest/Weed ( /staff/add_pest_weed ):** <br/>
+10. **Add Pest/Weed ( /staff/add_pest_weed ):** <br/>
 Description: Allows staff to add a new pest or weed to the database. <br/>
 Template: staff_add_pest_weed.html for GET, redirects on POST. <br/>
-Data Passed: New pest/weed details from form. <br/>
-Data Relationship: Provides a form to add a new pest/weed on GET requests. Inserts the new pest/weed into the database on POST requests. <br/><p/>
+Data Passed: Form data for the new pest or weed entry, and uploaded image file. <br/>
+Data Relationship: On GET, displays a form to input new pest or weed details. On POST, it inserts the new entry into the pest_directory table and associates any uploaded image with the new entry in the images table. The user is redirected to the pest directory upon successful addition, or informed of errors otherwise. <br/><p/>
 
-13. **Delete Pest/Weed ( /staff/delete_pest_weed/int:agriculture_id ):** <br/>
+11. **Manage Images (/staff/manage_images/int:agriculture_id):** <br>
+Description: Displays a list of images for a specific pest or weed, allowing the staff to manage them. <br>
+Template: staff_manage_images.html <br>
+Data Passed: agriculture_id for selecting images, images containing the list of images, common_name for display <br>
+Data Relationship: Fetches and displays all images related to the specified agriculture_id from the images table. Provides options to upload a new image, set an image as primary, or delete an image. <br><p/>
+
+12. **Upload Image** (/staff/upload_image/int:agriculture_id): <br>
+Description: Handles the image upload process for a specific pest or weed. <br>
+Template: Redirects to view_pest_weed_details on successful upload or back to manage_images on failure <br>
+Data Passed: The uploaded image file <br>
+Data Relationship: Inserts the new image into the images table and associates it with the agriculture_id. On success, adds the image to the server and database, flashes a success message, and redirects. On failure, flashes an error message and redirects to the referrer. <br><p/>
+
+13. **Delete Image (/staff/delete_image/int:image_id):** <br>
+Description: Deletes a specific image from the server and database. <br>
+Template: Redirects to the referrer URL <br>
+Data Passed: image_id of the image to be deleted <br>
+Data Relationship: Deletes the image file from the server's filesystem and the corresponding record from the images table. <br><p/>
+
+14. **Set Primary Image (/staff/set_primary_image/int:image_id/int:agriculture_id):** <br>
+Description: Sets a specific image as the primary image for a pest or weed. <br>
+Template: Redirects to manage_images for the specific agriculture_id <br>
+Data Passed: image_id of the image to set as primary <br>
+Data Relationship: Resets the status of all images for the item to 'active' and sets the selected image's status to 'primary' within the images table. <br><p/>
+
+15. **Delete Pest/Weed ( /staff/delete_pest_weed/int:agriculture_id ):** <br/>
 Description: Handles the deletion of a specific pest or weed from the database. <br/>
 Template: Redirects after POST <br/>
 Data Passed: agriculture_id to identify the pest/weed to delete. <br/>
 Data Relationship: Deletes the specified pest/weed from the database and redirects to the pest directory. <br/><p/>
 
-14. **Sources ( /staff/sources ):** <br/>
+16. **Sources ( /staff/sources ):** <br/>
 Description: Displays the sources or references page. <br/>
 Template: staff_sources.html <br/>
 Data Passed: None. <br/>
 Data Relationship: Renders a static page with sources or references. <br/><p/>
 
-15. **Logout ( /staff/logout ):** <br/>
+17. **Logout ( /staff/logout ):** <br/>
 Description: Logs out the current staff user and ends their session. <br/>
 Template: None (redirects to login) <br/>
 Data Passed: None. <br/>
@@ -264,38 +276,50 @@ Data Relationship: Removes the user from the database and redirects back to the 
 11. **View Pest Directory (/admin/view_pest_directory):** <br>
 Description: Displays the list of pests and weeds. <br>
 Template: admin_pest_directory.html <br>
-Data Passed: Lists of pests and weeds <br>
-Data Relationship: Fetches the lists of pests and weeds from the database and passes them to the admin_pest_directory.html template. <br><p/>
+Data Passed: Lists of pests and weeds, and a map of primary images.  <br>
+Data Relationship: Retrieves and presents a comprehensive list of all pests and weeds from the pest_directory table, including their primary images for administrative overview. <br><p/>
 
 12. **View Pest/Weed Details (/admin/view_pest_weed_details/int:agriculture_id):** <br>
 Description: Displays details for a specific pest or weed. <br>
 Template: admin_view_pest_weed_details.html <br>
-Data Passed: Details of the specific pest or weed <br>
-Data Relationship: Fetches the details of a specific pest or weed from the database and displays them on the admin_view_pest_weed_details.html template. <br><p/>
+Data Passed: Details of a single pest or weed, along with associated images.  <br>
+Data Relationship: Fetches and shows detailed data of a particular pest or weed entry from the pest_directory table and associated images from the images table, based on the provided agriculture_id <br><p/>
 
-13. **Upload Image (/admin/upload_image/int:agriculture_id):** <br>
-Description: Handles the uploading of additional images for a pest or weed. <br>
-Template: Redirects to update_pest_weed_details on POST <br>
-Data Passed: The image file and agriculture_id <br>
-Data Relationship: Receives the image upload through POST, saves the file, and updates the database entry for the pest/weed. <br><p/>
-
-16. **Add Image (/admin/add_image/int:agriculture_id):** <br>
-Description: Renders a form to upload additional images for a pest or weed. <br>
-Template: admin_add_image.html <br>
-Data Passed: agriculture_id <br>
-Data Relationship: Renders the admin_add_image.html template to provide a form for uploading additional images. <br><p/>
-
-17. **Update Pest/Weed Details (/admin/update_pest_weed_details/int:agriculture_id):** <br>
+13. **Update Pest/Weed Details (/admin/update_pest_weed_details/int:agriculture_id):** <br>
 Description: Updates the details for a specific pest or weed. <br>
 Template: admin_update_pest_weed_details.html for GET, redirects to view_pest_weed_details on POST <br>
 Data Passed: Updated details of the pest or weed <br>
 Data Relationship: Displays current details in the admin_update_pest_weed_details.html template for editing and updates the database on POST submission. <br><p/>
 
-18. **Add Pest/Weed (/admin/add_pest_weed):** <br>
+14. **Add Pest/Weed (/admin/add_pest_weed):** <br>
 Description: Adds a new pest or weed entry to the database. <br>
 Template: admin_add_pest_weed.html for GET, redirects to view_pest_directory on POST <br>
-Data Passed: New pest or weed data from the form <br>
-Data Relationship: Provides a form for adding new pest/weed entries and inserts them into the database on POST submission. <br><p/>
+Data Passed: Form data for the new pest or weed entry, and uploaded image file. <br/>
+Data Relationship: On GET, displays a form to input new pest or weed details. On POST, it inserts the new entry into the pest_directory table and associates any uploaded image with the new entry in the images table. The user is redirected to the pest directory upon successful addition, or informed of errors otherwise. <br/><p/>
+
+15. **Manage Images (/admin/manage_images/int:agriculture_id):** <br>
+Description: Displays a list of images for a specific pest or weed, allowing the admin to manage them. <br>
+Template: admin_manage_images.html <br>
+Data Passed: agriculture_id for selecting images, images containing the list of images, common_name for display <br>
+Data Relationship: Fetches and displays all images related to the specified agriculture_id from the images table. Provides options to upload a new image, set an image as primary, or delete an image. <br><p/>
+
+16. **Upload Image** (/admin/upload_image/int:agriculture_id): <br>
+Description: Handles the image upload process for a specific pest or weed. <br>
+Template: Redirects to view_pest_weed_details on successful upload or back to manage_images on failure <br>
+Data Passed: The uploaded image file <br>
+Data Relationship: Inserts the new image into the images table and associates it with the agriculture_id. On success, adds the image to the server and database, flashes a success message, and redirects. On failure, flashes an error message and redirects to the referrer. <br><p/>
+
+17. **Delete Image (/admin/delete_image/int:image_id):** <br>
+Description: Deletes a specific image from the server and database. <br>
+Template: Redirects to the referrer URL <br>
+Data Passed: image_id of the image to be deleted <br>
+Data Relationship: Deletes the image file from the server's filesystem and the corresponding record from the images table. <br><p/>
+
+18. **Set Primary Image (/admin/set_primary_image/int:image_id/int:agriculture_id):** <br>
+Description: Sets a specific image as the primary image for a pest or weed. <br>
+Template: Redirects to manage_images for the specific agriculture_id <br>
+Data Passed: image_id of the image to set as primary <br>
+Data Relationship: Resets the status of all images for the item to 'active' and sets the selected image's status to 'primary' within the images table. <br><p/>
 
 19. **Delete Pest/Weed (/admin/delete_pest_weed/int:agriculture_id):** <br>
 Description: Deletes a pest or weed entry from the database. <br>
@@ -322,6 +346,8 @@ Throughout the development of the web application, several assumptions were made
 - Scalability and Customization: The web application is designed with future expansion in mind, allowing for the introduction of additional features and functionalities tailored to specific roles as the need arises.<br>
 - User Registration Process: The platform mandates that all new user registrations occur directly through the website. <br>
 - Security: The application assumes a basic level of security for user authentication and authorization, primarily through session management and password hashing.
+- Staff Position: Staff position refers to the position 'admin' and 'staff.
+- There are various departments, therefore no validation has been made. 
 
 ### Design decision: 
 The website was crafted with an emphasis on both functionality and aesthetics. Here's a breakdown of the design decisions and their rationale:<br><br>
