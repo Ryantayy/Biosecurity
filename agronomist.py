@@ -133,28 +133,45 @@ def change_password():
         return redirect(url_for('agronomist.agronomist_profile'))
     return render_template('agronomist_change_password.html')
 
+# Routes for managing pests and weeds, including viewing, adding, editing, and deleting entries
 @agronomist_page.route('/view_pest_directory')
 @role_required('agronomist')
 def view_pest_directory():
     cursor = getCursor()
+    
     # Fetch the list of pests from the database
-    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'pest';")
+    cursor.execute("""SELECT * FROM pest_directory
+                   WHERE item_type = 'pest';""")
     pest_list = cursor.fetchall()
 
     # Fetch the list of weeds from the database
-    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'weed';")
+    cursor.execute("""SELECT * FROM pest_directory
+                   WHERE item_type = 'weed';""")
     weed_list = cursor.fetchall()
-    
-    return render_template('agronomist_pest_directory.html', pestList=pest_list, weedList=weed_list)
+
+    # Fetch the list of images from the database
+    cursor.execute("""SELECT * FROM images
+                   WHERE status = 'primary';""")
+    image_list = cursor.fetchall()
+
+    image_map = {image['agriculture_id']: image for image in image_list}
+
+    return render_template('agronomist_pest_directory.html', pestList=pest_list, weedList=weed_list, imageMap = image_map)
 
 @agronomist_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('agronomist')
 def view_pest_weed_details(agriculture_id):
     cursor = getCursor()
-    # Fetch details of a specific pest/weed from the database using the item_id
+    
+    # Fetch details of the specific pest/weed from the database using the agriculture_id
     cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
-    pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
-    return render_template('agronomist_view_pest_weed_details.html', item=pest_details)
+    pest_detail = cursor.fetchone()  # Use fetchone() to get a single item
+
+    # Fetch all associated images for this agriculture_id
+    cursor.execute("SELECT * FROM images WHERE agriculture_id = %s", (agriculture_id,))
+    images = cursor.fetchall()  
+
+    return render_template('agronomist_view_pest_weed_details.html', item=pest_detail, images=images)
 
 @agronomist_page.route('/sources')
 @role_required('agronomist')

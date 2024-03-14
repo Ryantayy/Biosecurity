@@ -11,12 +11,17 @@
     .image-cell {
         text-align: right; /* aligns the images to the right */
         vertical-align: middle; /* centers the images vertically */
+        width: 150px;  /* Adjust width as needed */
+        height: 150px; /* Ensure height is the same as width for square images */
+        object-fit: cover; /* This will cover the area without stretching images */
+        border-radius: 5px; /* Optional: Adds rounded corners to your images */
     }
     .image-cell img {
         width: 150px;
         height: auto; 
         object-fit: cover; /* ensures the images cover the area without stretching */
-    }
+}
+
 </style>
 
 
@@ -50,14 +55,19 @@
                     </thead>
                      <!-- Table body -->
                     <tbody>
-                        {% for item in pestList %}
+                        {% for item in pestList %} 
                         <tr>
                             <td>{{ item.common_name|title }}</td>
                             <td class="image-cell">
-                                <!-- Link to the detailed information page -->
-                                <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
-                                    <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
-                                </a>
+                                {% if item.agriculture_id in imageMap %}
+                                    <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                        <img src="{{ url_for('static', filename=imageMap[item.agriculture_id].filename) }}" alt="{{ item.common_name }} Image" class="img-fluid rounded mb-2" width="100">
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                        <img src="{{ url_for('static', filename='No_Image_Available.jpg') }}" alt="Placeholder Image" class="img-fluid" width="100">
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -92,14 +102,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in weedList %}
+                        {% for item in weedList %} 
                         <tr>
                             <td>{{ item.common_name|title }}</td>
                             <td class="image-cell">
-                                <!-- Link to the detailed information page -->
-                                <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
-                                    <img src="{{ url_for('static', filename=item.primary_image) }}" alt="{{ item.common_name }} Image" class="img-fluid" width="100">
-                                </a>
+                                {% if item.agriculture_id in imageMap %}
+                                    <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                        <img src="{{ url_for('static', filename=imageMap[item.agriculture_id].filename) }}" alt="{{ item.common_name }} Image" class="img-fluid rounded mb-2" width="100">
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=item.agriculture_id) }}">
+                                        <img src="{{ url_for('static', filename='No_Image_Available.jpg') }}" alt="Placeholder Image" class="img-fluid" width="100">
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

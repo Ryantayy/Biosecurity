@@ -71,8 +71,8 @@
       <div class="form-group">
         <label for="position">Position</label>
         <select class="form-control" id="position" name="position" required-on="staff">
-            <option value="Staff" {{ "selected" if user.position == "Staff" }}>Staff</option>
-            <option value="Admin" {{ "selected" if user.position == "Admin" }}>Admin</option>
+            <option value="staff" {{ "selected" if user.position == "staff" }}>Staff</option>
+            <option value="admin" {{ "selected" if user.position == "admin" }}>Admin</option>
         </select>
     </div>    
       <div class="form-group">
@@ -101,6 +101,7 @@
       var selectedRole = document.getElementById('roleSelect').value;
       var agronomistFields = document.getElementById('agronomistFields');
       var staffFields = document.getElementById('staffFields');
+      var positionSelect = document.getElementById('position');
 
       // Hide both sets of role-specific fields
       agronomistFields.style.display = 'none';
@@ -125,6 +126,8 @@
           staffFields.querySelectorAll('input[required-on="staff"]').forEach(function(input) {
               input.setAttribute('required', '');
           });
+          // Set position to the same as the role
+          positionSelect.value = selectedRole;
       }
 
   }

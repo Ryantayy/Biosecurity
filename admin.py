@@ -153,7 +153,7 @@ def manage_user_profile():
     cursor.execute("""SELECT * 
                     FROM staffadmin s
                     LEFT JOIN user u ON s.user_id = u.user_id
-                    WHERE position = 'staff';""")
+                    WHERE role = 'staff';""")
     staff_list = cursor.fetchall()
     return render_template('admin_manage_user_profile.html', agronomistList = agronomist_list, staffList = staff_list)
 
@@ -281,6 +281,17 @@ def edit_user(user_id):
                     first_name=%s, last_name=%s, email=%s, work_phone_number=%s, hire_date=%s, position=%s, department=%s, status=%s
                     """, (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status, 
                             first_name, last_name, email, work_phone_number, hire_date, position, department, status))
+            elif new_role == 'admin':
+                work_phone_number = request.form.get('work_phone_number')
+                hire_date = request.form.get('hire_date')
+                department = request.form.get('department')
+                position = request.form.get('position')
+                cursor.execute("""
+                    INSERT INTO staffadmin (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
+                    first_name=%s, last_name=%s, email=%s, work_phone_number=%s, hire_date=%s, position=%s, department=%s, status=%s
+                    """, (user_id, first_name, last_name, email, work_phone_number, hire_date, position, department, status, 
+                            first_name, last_name, email, work_phone_number, hire_date, position, department, status))
             elif new_role == 'agronomist':
                 address = request.form.get('address')
                 phone_number = request.form.get('phone_number')
@@ -354,62 +365,38 @@ def view_pest_directory():
     cursor = getCursor()
     
     # Fetch the list of pests from the database
-    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'pest';")
+    cursor.execute("""SELECT * FROM pest_directory
+                   WHERE item_type = 'pest';""")
     pest_list = cursor.fetchall()
 
     # Fetch the list of weeds from the database
-    cursor.execute("SELECT * FROM pest_directory WHERE item_type = 'weed';")
+    cursor.execute("""SELECT * FROM pest_directory
+                   WHERE item_type = 'weed';""")
     weed_list = cursor.fetchall()
-    
-    return render_template('admin_pest_directory.html', pestList=pest_list, weedList=weed_list)
+
+    # Fetch the list of images from the database
+    cursor.execute("""SELECT * FROM images
+                   WHERE status = 'primary';""")
+    image_list = cursor.fetchall()
+
+    image_map = {image['agriculture_id']: image for image in image_list}
+
+    return render_template('admin_pest_directory.html', pestList=pest_list, weedList=weed_list, imageMap = image_map)
 
 @admin_page.route('/view_pest_weed_details/<int:agriculture_id>')
 @role_required('admin')
 def view_pest_weed_details(agriculture_id):
     cursor = getCursor()
-    # Fetch details of a specific pest/weed from the database using the item_id
+    
+    # Fetch details of the specific pest/weed from the database using the agriculture_id
     cursor.execute("SELECT * FROM pest_directory WHERE agriculture_id = %s", (agriculture_id,))
-    pest_details = cursor.fetchone()  # Use fetchone() since you're fetching a single item
-    return render_template('admin_view_pest_weed_details.html', item=pest_details)
+    pest_detail = cursor.fetchone()  # Use fetchone() to get a single item
 
-@admin_page.route('/upload_image/<int:agriculture_id>', methods=['POST'])
-@role_required('admin')
-def upload_image(agriculture_id):
-    if 'additional_image' not in request.files:
-        flash('No file part', 'warning')
-        return redirect(request.referrer)
+    # Fetch all associated images for this agriculture_id
+    cursor.execute("SELECT * FROM images WHERE agriculture_id = %s", (agriculture_id,))
+    images = cursor.fetchall()  
 
-    file = request.files['additional_image']
-    if file.filename == '':
-        flash('No selected file', 'warning')
-        return redirect(request.referrer)
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-
-        # Update the database entry for the pest/weed to include the new image filename
-        try:
-            cursor = getCursor()
-            cursor.execute("""
-                UPDATE pest_directory 
-                SET additional_image = %s
-                WHERE agriculture_id = %s
-            """, (filename, agriculture_id))
-            flash('Image uploaded successfully', 'success')
-        except Exception as e:
-            flash(f"An error occurred while saving the image: {str(e)}", 'danger')
-
-    else:
-        flash('Allowed file types are png, jpg, jpeg, gif', 'warning')
-
-    return redirect(url_for('admin.update_pest_weed_details', agriculture_id=agriculture_id))
-
-@admin_page.route('/add_image/<int:agriculture_id>', methods=['GET'])
-@role_required('admin')
-def add_image(agriculture_id):
-    return render_template('admin_add_image.html', agriculture_id=agriculture_id)
+    return render_template('admin_view_pest_weed_details.html', item=pest_detail, images=images)
 
 # Route for updating pest or weed details
 @admin_page.route('/update_pest_weed_details/<int:agriculture_id>', methods=['GET', 'POST'])
@@ -462,29 +449,138 @@ def add_pest_weed():
             biology_description = request.form.get('biology_description')
             impacts = request.form.get('impacts')
             control = request.form.get('control')
-            primary_image = request.files.get('primary_image')
+            uploaded_file = request.files.get('filename')
 
-            filename = None
-            if primary_image and primary_image.filename != '':
-                if allowed_file(primary_image.filename):  # Ensure the file is allowed based on your function's logic
-                    filename = secure_filename(primary_image.filename)
-                    save_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
-                    primary_image.save(save_path)
+            file_name = None
+            if uploaded_file and uploaded_file.filename != '':
+                if allowed_file(uploaded_file.filename):  # Ensure the file is allowed based on your function's logic
+                    file_name = secure_filename(uploaded_file.filename)
+                    save_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], file_name)
+                    uploaded_file.save(save_path)
                 else:
                     flash('Invalid file type.', 'warning')
                     return redirect(request.url)
 
-            # Insert data into database
+             # Insert data into the pest_directory table
             cursor.execute("""
-                INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, primary_image)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control, filename))
+                INSERT INTO pest_directory (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (item_type, common_name, scientific_name, key_characteristics, biology_description, impacts, control))
+            
+            # Get the last insert id to link the image
+            agriculture_id = cursor.lastrowid
+
+            if file_name:
+                cursor.execute("""
+                    INSERT INTO images (agriculture_id, filename, status)
+                    VALUES (%s, %s, %s)
+                """, (agriculture_id, file_name, 'primary'))
+
             flash('Pest/weed details added successfully.', 'success')
-            # Redirect to the list of guides
             return redirect(url_for('admin.view_pest_directory'))
         except Exception as e:
             flash('An error occurred: ' + str(e), 'danger')
             return redirect(url_for('admin.add_pest_weed'))
+
+@admin_page.route('/manage_images/<int:agriculture_id>', methods=['GET'])
+@role_required('admin')
+def manage_images(agriculture_id):
+    cursor = getCursor()
+    # Fetch list of images for the pest/weed
+    cursor.execute("""SELECT * FROM images
+                   WHERE agriculture_id = %s;""", (agriculture_id,))
+    image_list = cursor.fetchall()
+    # Fetch common name for display purposes
+    cursor.execute("""SELECT common_name FROM pest_directory
+                   WHERE agriculture_id = %s;""", (agriculture_id,))
+    common_name_result = cursor.fetchone()
+    common_name = common_name_result['common_name'] if common_name_result else 'Unknown'
+    return render_template('admin_manage_images.html', agriculture_id=agriculture_id, images=image_list, common_name=common_name)
+
+@admin_page.route('/upload_image/<int:agriculture_id>', methods=['POST'])
+@role_required('admin')
+def upload_image(agriculture_id):
+    if 'additional_image' not in request.files:
+        flash('No file part', 'warning')
+        return redirect(request.referrer)
+
+    file = request.files['additional_image']
+    if file.filename == '':
+        flash('No selected file', 'warning')
+        return redirect(request.referrer)
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        # Update the database entry for the pest/weed to include the new image filename
+        try:
+            cursor = getCursor()
+            cursor.execute("""
+                INSERT INTO images (agriculture_id, filename, status)
+                VALUES (%s, %s, 'active')
+            """, (agriculture_id, filename))
+            flash('Image uploaded successfully', 'success')
+        except Exception as e:
+            flash(f"An error occurred while saving the image: {str(e)}", 'danger')
+
+    else:
+        flash('Allowed file types are png, jpg, jpeg, gif', 'warning')
+
+    return redirect(url_for('admin.view_pest_weed_details', agriculture_id=agriculture_id))
+
+@admin_page.route('/delete_image/<int:image_id>')
+@role_required('admin')
+def delete_image(image_id):
+    try:
+        cursor = getCursor()
+        # Retrieve the filename before deleting the record
+        cursor.execute("SELECT filename FROM images WHERE image_id = %s", (image_id,))
+        image_record = cursor.fetchone()
+
+        if image_record:
+            # Delete the file from the server
+            filepath = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], image_record['filename'])
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+            # Delete the image record from the database
+            cursor.execute("DELETE FROM images WHERE image_id = %s", (image_id,))
+            flash('Image deleted successfully', 'success')
+        else:
+            flash('Image not found', 'warning')
+    except Exception as e:
+        flash('An error occurred: ' + str(e), 'danger')
+    finally:
+        return redirect(request.referrer)
+
+@admin_page.route('/set_primary_image/<int:image_id>/<int:agriculture_id>')
+@role_required('admin')
+def set_primary_image(image_id, agriculture_id):
+    try:
+        cursor = getCursor()
+        # Retrieve agriculture_id for the image
+        cursor.execute("SELECT agriculture_id FROM images WHERE image_id = %s", (image_id,))
+        result = cursor.fetchone()
+        agriculture_id = result['agriculture_id']
+
+        # Reset the status of all images for the item
+        cursor.execute("""
+            UPDATE images SET status='active'
+            WHERE agriculture_id = %s AND status = 'primary'
+        """, (agriculture_id,))
+
+        # Set the selected image as primary
+        cursor.execute("""
+            UPDATE images SET status='primary'
+            WHERE image_id = %s
+        """, (image_id,))
+        flash('Image set as primary successfully.', 'success')
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", 'danger')
+    
+    return redirect(url_for('admin.manage_images', agriculture_id=agriculture_id))
 
 # Route for deleting a pest or weed entry
 @admin_page.route('/delete_pest_weed/<int:agriculture_id>', methods=['GET', 'POST'])
@@ -502,6 +598,7 @@ def delete_pest_weed(agriculture_id):
     
     # Redirect back to the pest directory page
     return redirect(url_for('admin.view_pest_directory'))
+
 
 # Route for displaying sources or references page
 @admin_page.route('/sources')

@@ -1,0 +1,51 @@
+{% extends 'admin_layout.html' %}
+
+{% block title %}Manage Images{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h2>Manage Images for {{ common_name }}</h2>
+    
+    <!-- Section to display existing images with action buttons -->
+    <div class="row">
+        {% for image in images %}
+            <div class="col-md-4">
+                <img src="{{ url_for('static', filename=image.filename) }}" alt="{{ common_name }}" class="img-fluid rounded mb-2">
+                <div>
+                    {% if not image.is_primary %}
+                        <a href="{{ url_for('admin.set_primary_image', agriculture_id=agriculture_id, image_id=image.image_id) }}" class="btn btn-primary btn-sm">Set as Primary</a>
+                    {% endif %}
+                    <a href="{{ url_for('admin.delete_image', image_id=image.image_id) }}" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </div>
+        {% else %}
+            <p>No images available.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Form for image upload -->
+    <form action="{{ url_for('admin.upload_image', agriculture_id=agriculture_id) }}" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <h2 style="padding-top: 30px;><label for="additional_image" class="form-label">Choose image to upload</label></h2>
+            <input class="form-control" type="file" id="additional_image" name="additional_image" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload Image</button>
+        <a href="{{ url_for('admin.view_pest_weed_details', agriculture_id=agriculture_id) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+    <!-- End form -->
+</div>
+
+<script>
+    // JavaScript for confirm dialog before deleting an image
+    document.querySelectorAll('.btn-danger').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to delete this image?")) {
+                window.location.href = this.href;
+            }
+        });
+    });
+</script>
+
+{% endblock %}
