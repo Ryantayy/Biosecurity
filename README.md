@@ -58,6 +58,57 @@ Template: N/A <br/>
 Data Passed: N/A <br/>
 Data Relationship: Attaches the hashing instance to the global object g before handling any requests. <br/><p/>
 
+**Agronomist_Page Blueprint (agronomist.py)**
+1. **Agronomist Dashboard**<br>
+Description: Displays the main dashboard for agronomist users.<br>
+Template: agronomist_home.html<br>
+Data Passed: Username from session.<br>
+Data Relationship: Directly presents the agronomist dashboard if the user is logged in and assigned an 'agronomist' role. Redirects to login otherwise.<br>
+
+2. **Agronomist Profile**<br>
+Description: Displays the profile page for agronomist users.<br>
+Template: agronomist_profile.htmlbr>
+Data Passed: User information from the database.<br>
+Data Relationship: Presents the profile of the logged-in agronomist. Requires user data from `agronomist` and `user` tables.<br>
+
+3. **Edit Agronomist Profile**<br>
+Description: Allows agronomist users to edit their profile.<br>
+Template: agronomist_edit_profile.html<br>
+Data Passed: Current user data for pre-population of form.<br>
+Data Relationship: Enables the update of agronomist information in the database.<br>
+
+4. **Change Password**<br>
+Description: Allows agronomist users to change their password.<br>
+Template: agronomist_change_password.html<br>
+Data Passed: None explicitly, validation against the user session.<br>
+Data Relationship: Facilitates password updates for the logged-in agronomist in the `user` table.<br>
+
+5. **View Pest Directory**<br>
+Description: Presents a directory of pests and weeds.<br>
+Template: agronomist_pest_directory.html<br>
+Data Passed: Lists of pests and weeds.<br>
+Data Relationship: Retrieves pest and weed data from `pest_directory` table to display to the user.<br>
+
+6. **View Specific Pest/Weed Details**<br>
+Description: Shows details of a specific pest or weed.<br>
+Template: agronomist_view_pest_weed_details.html<br>
+Data Passed: Details of the selected pest or weed.<br>
+Data Relationship: Fetches and displays detailed information from `pest_directory` based on the provided `agriculture_id`.<br>
+
+7. **Sources**<br>
+Description: Displays the sources or references page. <br/>
+Template: agronomist_sources.html <br/>
+Data Passed: None. <br/>
+Data Relationship: Renders a static page with sources or references. <br/><p/>
+
+8. **Logout**<br>
+Role Required: None.<br>
+Description: Logs out the current user and clears the session.<br>
+Template: None. Redirects to the login route.<br>
+Data Passed: None.<br>
+Data Relationship: Clears session data and redirects to the login page.<br>
+
+
 **Staff_Page Blueprint (staff.py)**
 1. **Staff Dashboard ( /staff_dashboard ):** <br/>
 Description: Displays the main dashboard for staff users. <br/>
@@ -138,10 +189,10 @@ Data Passed: agriculture_id to identify the pest/weed to delete. <br/>
 Data Relationship: Deletes the specified pest/weed from the database and redirects to the pest directory. <br/><p/>
 
 14. **Sources ( /staff/sources ):** <br/>
-Description: Displays the sources or references page for staff. <br/>
+Description: Displays the sources or references page. <br/>
 Template: staff_sources.html <br/>
 Data Passed: None. <br/>
-Data Relationship: Renders a static page with sources or references relevant to the staff content. <br/><p/>
+Data Relationship: Renders a static page with sources or references. <br/><p/>
 
 15. **Logout ( /staff/logout ):** <br/>
 Description: Logs out the current staff user and ends their session. <br/>
@@ -149,7 +200,7 @@ Template: None (redirects to login) <br/>
 Data Passed: None. <br/>
 Data Relationship: Clears the staff user's session data and redirects to the login page. <br/><p/>
 
-**Admin Blueprint (admin.py)**
+**Admin_Page Blueprint (admin.py)**
 1. **Admin Dashboard (/admin/admin_dashboard):** <br>
 Description: Serves the dashboard for administrators after login. <br>
 Template: admin_home.html <br>
@@ -192,11 +243,11 @@ Template: admin_add_user.html for GET, redirects to manage_user_profile on POST 
 Data Passed: User data from form on POST <br>
 Data Relationship: Renders a form to add a new user and inserts the user into the database on POST submission. <br><p/>
 
-8. **Edit User (/admin/edit_agronomist and /admin/edit_staff):** <br>
-Description: Routes for editing specific agronomist and staff users, handling both displaying the edit form and processing updates. <br>
-Templates: admin_edit_agronomist.html and admin_edit_staff.html for GET, redirects to manage_user_profile on POST <br>
-Data Passed: User data to be edited <br>
-Data Relationship: Fetches the user's current data, displays it for editing, and updates the database on POST submission. <br><p/>
+8. **edit_user (/edit_user/int:user_id):** <br>
+Description: Allows editing of specific user details including common information and role-specific details. <br>
+Template: admin_edit_user.html <br>
+Data Passed: User details fetched from the database based on the provided user ID. <br>
+Data Relationship: The user ID is extracted either from the URL or from a form submission depending on the method. Upon receiving the user ID, the corresponding user's details are fetched from the database, including common information and role-specific details. This data is then passed to the admin_edit_user.html template for display and editing. <br><p/>
 
 9. **Change User Password (/admin/change_user_password/int:user_id):** <br>
 Description: Allows changing another user's password. <br>
@@ -268,9 +319,8 @@ Data Relationship: Clears session data and redirects to the login page. <br><p/>
 Throughout the development of the web application, several assumptions were made and design decisions were taken to guide the development process and address the requirements effectively. Below is a detailed account of these considerations.<br>
   **Assumptions:** <br>
 - Profile Deletion Restrictions: Administrators and staff members do not have the capability to delete their own profiles to prevent accidental or malicious removal of essential users from the system. <br>
-- Role Modification Limitations: Administrators are restricted from changing the roles of staff and agronomists post-creation. Their primary ability concerning user roles is to assign them appropriately at the time of new user creation. <br>
 - Scalability and Customization: The web application is designed with future expansion in mind, allowing for the introduction of additional features and functionalities tailored to specific roles as the need arises.<br>
-- User Registration Process: The platform mandates that all new user registrations occur directly through the website, ensuring a consistent and controlled entry point for user addition to the system. <br>
+- User Registration Process: The platform mandates that all new user registrations occur directly through the website. <br>
 - Security: The application assumes a basic level of security for user authentication and authorization, primarily through session management and password hashing.
 
 ### Design decision: 
