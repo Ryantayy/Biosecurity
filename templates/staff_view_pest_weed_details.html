@@ -17,7 +17,7 @@
         <div class="col-lg-4">
             <!-- Display the primary or additional image here -->
             {% for image in images %}
-                <img src="{{ url_for('static', filename=image.filename) }}" alt="{{ item.common_name }} Image" class="img-fluid rounded mb-2" width="167">
+                <img src="{{ url_for('static', filename=image.filename) }}" alt="{{ item.common_name }} Image" class="img-fluid rounded mb-2" width="146">
             {% else %}
             <!-- If there are no images, show a placeholder -->
                 <img src="{{ url_for('static', filename='No_Image_Available.jpg') }}" alt="Placeholder Image" class="img-fluid rounded mb-2" width="300">
