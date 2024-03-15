@@ -47,7 +47,7 @@ def before_request():
 
 @app.route('/')
 def index():
-    #Render the home.thml template upon accessing the root URL
+    #Render the login template upon accessing the root URL
     return redirect(url_for('login'))
 
 # http://localhost:5000/login/ - this will be the login page, we need to use both GET and POST requests
